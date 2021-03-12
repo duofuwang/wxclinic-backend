@@ -1,9 +1,6 @@
 package com.dopoiv.clinic.common.client;
 
-import com.dtflys.forest.annotation.DataVariable;
-import com.dtflys.forest.annotation.GetRequest;
-import com.dtflys.forest.annotation.PostRequest;
-import com.dtflys.forest.annotation.Query;
+import com.dtflys.forest.annotation.*;
 import org.springframework.context.annotation.Bean;
 
 import java.util.Map;
@@ -24,6 +21,7 @@ public interface MyHttpClient {
     @GetRequest(
             url = "${requestUrl}"
     )
+    @LogEnabled(false)
     String doGet(@DataVariable("requestUrl") String requestUrl, @Query Map<String, String> params);
 
     /**
@@ -36,6 +34,7 @@ public interface MyHttpClient {
     @PostRequest(
             url = "${requestUrl}"
     )
+    @LogEnabled(false)
     String doPost(@DataVariable("requestUrl") String requestUrl, @Query Map<String, String> params);
 
 }
