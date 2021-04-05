@@ -1,4 +1,4 @@
-package com.dopoiv.clinic.sys.QO;
+package com.dopoiv.clinic.sys.qo;
 
 import com.dopoiv.clinic.common.tools.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @ApiModel(value="ContactList对象", description="")
-public class Contact extends BaseEntity {
+public class ContactQO extends BaseEntity {
 
     @ApiModelProperty(value = "联系人的id")
     private String friendId;

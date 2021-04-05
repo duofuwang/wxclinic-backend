@@ -1,7 +1,7 @@
 package com.dopoiv.clinic.sys.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dopoiv.clinic.sys.QO.Contact;
+import com.dopoiv.clinic.sys.qo.ContactQO;
 import com.dopoiv.clinic.sys.entity.Message;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -56,6 +56,6 @@ public interface MessageMapper extends BaseMapper<Message> {
             "ORDER BY create_time desc\n" +
             ") AS uni_table\n" +
             "INNER JOIN user u on friend_id = u.id GROUP BY friend_id ORDER BY create_time DESC")
-    List<Contact> getContactList(@Param("userId") String userId);
+    List<ContactQO> getContactList(@Param("userId") String userId);
 
 }

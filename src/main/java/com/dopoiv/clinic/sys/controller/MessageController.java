@@ -1,13 +1,12 @@
 package com.dopoiv.clinic.sys.controller;
 
-import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.constants.Result;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.utils.UploadUtil;
-import com.dopoiv.clinic.sys.QO.Contact;
+import com.dopoiv.clinic.sys.qo.ContactQO;
 import com.dopoiv.clinic.sys.entity.Message;
 import com.dopoiv.clinic.sys.mapper.MessageMapper;
 import com.dopoiv.clinic.websocket.enums.MsgSignFlagEnum;
@@ -21,8 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -200,7 +197,7 @@ public class MessageController extends BaseController {
             result.fail("用户不存在");
             return result;
         }
-        List<Contact> contactList = messageMapper.getContactList(userId);
+        List<ContactQO> contactList = messageMapper.getContactList(userId);
         result.setData(contactList);
         return result;
     }
@@ -213,7 +210,7 @@ public class MessageController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "/upload")
     public Result upload(@RequestParam("file") MultipartFile file, String userId) {
         Result result = new Result();
-        if (!userController.exists(userId)) {
+        if (userController.notExists(userId)) {
             result.fail("用户不存在");
             return result;
         }

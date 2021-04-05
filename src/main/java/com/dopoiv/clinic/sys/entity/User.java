@@ -2,12 +2,14 @@ package com.dopoiv.clinic.sys.entity;
 
 import com.dopoiv.clinic.common.tools.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -21,12 +23,14 @@ import java.time.LocalDateTime;
 public class User extends BaseEntity {
 
     @ApiModelProperty(value = "微信用户唯一标识 ")
+    @JsonIgnore
     private String openId;
 
     @ApiModelProperty(value = "与openid、session_key进行关联的自定义登录态")
     private String token;
 
     @ApiModelProperty(value = "微信会话密钥")
+    @JsonIgnore
     private String sessionKey;
 
     @ApiModelProperty(value = "用户昵称")
@@ -48,11 +52,14 @@ public class User extends BaseEntity {
     @ApiModelProperty(value = "用户性别，1是男性，2是女性，0是未知")
     private String gender;
 
+    @ApiModelProperty(value = "用户所在省份")
+    private String province;
+
     @ApiModelProperty(value = "用户所在城市")
     private String city;
 
-    @ApiModelProperty(value = "用户所在省份")
-    private String province;
+    @ApiModelProperty(value = "用户所在区")
+    private String district;
 
     @ApiModelProperty(value = "用户所在国家")
     private String country;
@@ -69,5 +76,20 @@ public class User extends BaseEntity {
     @ApiModelProperty(value = "没有区号的手机号")
     private String purePhoneNumber;
 
+    @ApiModelProperty(value = "用户真实姓名")
+    private String realName;
 
+    @ApiModelProperty(value = "用户身份证号")
+    private String identityNumber;
+
+    @ApiModelProperty(value = "出生年月")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    private LocalDate birthday;
+
+    @ApiModelProperty(value = "身高")
+    private Double height;
+
+    @ApiModelProperty(value = "体重")
+    private Double weight;
 }

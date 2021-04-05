@@ -53,12 +53,7 @@ public class UserController extends BaseController {
     })
     @RequestMapping(method = RequestMethod.POST, value = "/wxlogin")
     public Result wxLogin(String code, String rawData, String encryptedData, String iv, String signature) {
-        Result result = new Result<>();
-        logger.debug("code ------> " + code);
-        logger.debug("rawData ------> " + rawData);
-        logger.debug("encryptedData ------> " + encryptedData);
-        logger.debug("iv ------> " + iv);
-        logger.debug("signature ------> " + signature);
+        Result result = new Result();
 
         // 使用 appId + appSecret + code 登录凭证校验接口，获取session_key和openid
         JSONObject sessionKeyOpenId = WechatUtil.getSessionKeyOrOpenId(code);
@@ -120,7 +115,7 @@ public class UserController extends BaseController {
         data.put("token", token);
         data.put("phoneNumber", user.getPhoneNumber());
         data.put("id", user.getId());
-        result.setData(data);
+        result.setData(user);
         return result;
     }
 
@@ -197,6 +192,17 @@ public class UserController extends BaseController {
         return result;
     }
 
+    @ApiOperation(value = "获取用户信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", paramType = "String", value = "userId", required = true)
+    })
+    @RequestMapping(method = RequestMethod.POST, value = "/getUserInfo")
+    public Result<User> getUserInfo(String userId) {
+        Result<User> result = new Result<>();
+        result.setData(userMapper.selectById(userId));
+        return result;
+    }
+
     /**
      * 判断用户是否存在
      * @param userId 用户id
@@ -206,5 +212,16 @@ public class UserController extends BaseController {
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         userQueryWrapper.eq("id", userId);
         return userMapper.selectCount(userQueryWrapper) != 0;
+    }
+
+    /**
+     * 判断用户是否存在
+     * @param userId 用户id
+     * @return boolean 存在：false 不存在：true
+     */
+    public boolean notExists(String userId) {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("id", userId);
+        return userMapper.selectCount(userQueryWrapper) == 0;
     }
 }
