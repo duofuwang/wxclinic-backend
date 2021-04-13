@@ -1,6 +1,7 @@
 package com.dopoiv.clinic.project.emergency.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.tools.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,11 +74,15 @@ public class EmergencyController extends BaseController {
     @RequestMapping(method= RequestMethod.POST,value="/save")
     public Result save(@RequestBody Emergency entity) {
         Result result = new Result();
+
         if (entity.getId() == null) {
+            emergencyMapper.update(new Emergency(), new UpdateWrapper<Emergency>().eq("user_id", entity.getUserId()).set("is_calling", 0));
+            entity.setIsCalling(1);
             emergencyMapper.insert(entity);
         } else {
             emergencyMapper.updateById(entity);
         }
+        result.setData(entity);
         return result;
     }
 
@@ -93,6 +98,35 @@ public class EmergencyController extends BaseController {
             deleteIds.add(id);
         }
         emergencyMapper.deleteBatchIds(deleteIds);
+        return result;
+    }
+
+    @ApiOperation(value = "获取正在进行的呼救信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId",paramType = "String",value = "用户id",required = true)
+    })
+    @RequestMapping(method= RequestMethod.POST,value="/getCurrentCall")
+    public Result<Emergency> getCurrentCall(String userId) {
+        Result<Emergency> result = new Result<>();
+
+        result.setData(emergencyMapper.selectOne(new QueryWrapper<Emergency>().eq("user_id", userId).eq("is_calling", 1)));
+
+        return result;
+    }
+
+    @ApiOperation(value = "停止正在进行的呼救信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId",paramType = "String",value = "用户id",required = true)
+    })
+    @RequestMapping(method= RequestMethod.POST,value="/stopEmergencyCall")
+    public Result<Emergency> stopEmergencyCall(String userId) {
+        Result<Emergency> result = new Result<>();
+
+        Emergency emergency = new Emergency();
+        emergency.setIsCalling(0);
+
+        emergencyMapper.update(emergency, new UpdateWrapper<Emergency>().eq("user_id", userId).eq("is_calling", 1));
+
         return result;
     }
 
