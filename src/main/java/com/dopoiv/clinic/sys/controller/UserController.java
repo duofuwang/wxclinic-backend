@@ -7,7 +7,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.constants.Result;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.utils.JwtUtil;
+import com.dopoiv.clinic.common.utils.SecurityUtil;
 import com.dopoiv.clinic.common.utils.WechatUtil;
+import com.dopoiv.clinic.security.LoginUser;
 import com.dopoiv.clinic.sys.entity.User;
 import com.dopoiv.clinic.sys.mapper.UserMapper;
 import io.swagger.annotations.ApiImplicitParam;
@@ -18,11 +20,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +47,10 @@ public class UserController extends BaseController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Resource
+    @Lazy
+    private AuthenticationManager authenticationManager;
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -109,6 +120,11 @@ public class UserController extends BaseController {
             user.setToken(token);
             userMapper.updateById(user);
         }
+
+        // 保存用户登录信息
+        this.login(user);
+//        User sysUser = SecurityUtil.getUserInfo();
+        logger.debug("user -----> {}", SecurityUtil.getAuthentication().getPrincipal());
 
         // 把新的token返回给小程序
         JSONObject data = new JSONObject();
@@ -223,5 +239,11 @@ public class UserController extends BaseController {
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         userQueryWrapper.eq("id", userId);
         return userMapper.selectCount(userQueryWrapper) == 0;
+    }
+
+    public void login(User user) {
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(user.getId(), user.getId()));
+        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
     }
 }
