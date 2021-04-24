@@ -1,7 +1,7 @@
 package com.dopoiv.clinic.project.emergency.mapper;
 
-import com.dopoiv.clinic.project.emergency.entity.Emergency;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dopoiv.clinic.project.emergency.entity.Emergency;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

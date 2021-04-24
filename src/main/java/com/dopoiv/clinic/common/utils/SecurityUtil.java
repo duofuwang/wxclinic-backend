@@ -1,7 +1,7 @@
 package com.dopoiv.clinic.common.utils;
 
+import com.dopoiv.clinic.project.user.entity.User;
 import com.dopoiv.clinic.security.LoginUser;
-import com.dopoiv.clinic.sys.entity.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

@@ -1,8 +1,8 @@
 package com.dopoiv.clinic.security.service;
 
+import com.dopoiv.clinic.project.user.entity.User;
+import com.dopoiv.clinic.project.user.mapper.UserMapper;
 import com.dopoiv.clinic.security.LoginUser;
-import com.dopoiv.clinic.sys.entity.User;
-import com.dopoiv.clinic.sys.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

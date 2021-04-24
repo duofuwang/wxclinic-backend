@@ -4,26 +4,23 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.tools.BaseController;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import com.dopoiv.clinic.common.web.domain.R;
+import com.dopoiv.clinic.project.emergency.entity.Emergency;
+import com.dopoiv.clinic.project.emergency.mapper.EmergencyMapper;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dopoiv.clinic.common.constants.Result;
-import com.dopoiv.clinic.project.emergency.mapper.EmergencyMapper;
-import com.dopoiv.clinic.project.emergency.entity.Emergency;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -31,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2021-04-10
  */
 @RestController
-@RequestMapping("/basic/emergency")
+@RequestMapping("/emergency")
 public class EmergencyController extends BaseController {
     @Autowired
     private EmergencyMapper emergencyMapper;
@@ -44,36 +41,31 @@ public class EmergencyController extends BaseController {
     })
     @ApiOperation(value = "分页获取Emergency信息")
     @RequestMapping(method= RequestMethod.POST,value="/page")
-    public Result page(
+    public R page(
         Integer pageNum,
         Integer pageSize) {
-        Result result = new Result();
-        Page<Emergency> page = new Page<Emergency>(pageNum, pageSize);
+        Page<Emergency> page = new Page<>(pageNum, pageSize);
         Emergency params = new Emergency();
-        QueryWrapper<Emergency> wrapper = new QueryWrapper<Emergency>(params);
+        QueryWrapper<Emergency> wrapper = new QueryWrapper<>(params);
 
-        result.setData(emergencyMapper.selectPage(page, wrapper));
-        return result;
+        return R.data(emergencyMapper.selectPage(page, wrapper));
     }
 
     @ApiImplicitParams({
     })
     @ApiOperation(value = "获取全部Emergency信息")
     @RequestMapping(method= RequestMethod.POST,value="/getAllItems")
-    public Result getAllItems() {
-        Result result = new Result();
+    public R getAllItems() {
         Emergency params = new Emergency();
-        QueryWrapper<Emergency> wrapper = new QueryWrapper<Emergency>(params);
+        QueryWrapper<Emergency> wrapper = new QueryWrapper<>(params);
         List<Emergency> emergencyList = emergencyMapper.selectList(wrapper);
 
-        result.setData(emergencyList);
-        return result;
+        return R.data(emergencyList);
     }
 
     @ApiOperation(value = "保存修改Emergency信息")
     @RequestMapping(method= RequestMethod.POST,value="/save")
-    public Result save(@RequestBody Emergency entity) {
-        Result result = new Result();
+    public R save(@RequestBody Emergency entity) {
 
         if (entity.getId() == null) {
             emergencyMapper.update(new Emergency(), new UpdateWrapper<Emergency>().eq("user_id", entity.getUserId()).set("is_calling", 0));
@@ -82,8 +74,7 @@ public class EmergencyController extends BaseController {
         } else {
             emergencyMapper.updateById(entity);
         }
-        result.setData(entity);
-        return result;
+        return R.data(entity);
     }
 
     @ApiOperation(value = "按id删除Emergency，可以传入多个id用，隔开")
@@ -91,14 +82,10 @@ public class EmergencyController extends BaseController {
         @ApiImplicitParam(name = "ids",paramType = "query",value = "传入的id串，用，隔开",required = true)
     })
     @RequestMapping(method= RequestMethod.DELETE,value="/delete")
-    public Result delete( String ids) {
-        Result result = new Result();
-        List<String> deleteIds = new ArrayList<String>();
-        for (String id : ids.split(",")) {
-            deleteIds.add(id);
-        }
+    public R delete( String ids) {
+        List<String> deleteIds = new ArrayList<String>(Arrays.asList(ids.split(",")));
         emergencyMapper.deleteBatchIds(deleteIds);
-        return result;
+        return R.success();
     }
 
     @ApiOperation(value = "获取正在进行的呼救信息")
@@ -106,12 +93,8 @@ public class EmergencyController extends BaseController {
             @ApiImplicitParam(name = "userId",paramType = "String",value = "用户id",required = true)
     })
     @RequestMapping(method= RequestMethod.POST,value="/getCurrentCall")
-    public Result<Emergency> getCurrentCall(String userId) {
-        Result<Emergency> result = new Result<>();
-
-        result.setData(emergencyMapper.selectOne(new QueryWrapper<Emergency>().eq("user_id", userId).eq("is_calling", 1)));
-
-        return result;
+    public R<Emergency> getCurrentCall(String userId) {
+        return R.data(emergencyMapper.selectOne(new QueryWrapper<Emergency>().eq("user_id", userId).eq("is_calling", 1)));
     }
 
     @ApiOperation(value = "停止正在进行的呼救信息")
@@ -119,15 +102,11 @@ public class EmergencyController extends BaseController {
             @ApiImplicitParam(name = "userId",paramType = "String",value = "用户id",required = true)
     })
     @RequestMapping(method= RequestMethod.POST,value="/stopEmergencyCall")
-    public Result<Emergency> stopEmergencyCall(String userId) {
-        Result<Emergency> result = new Result<>();
-
+    public R stopEmergencyCall(String userId) {
         Emergency emergency = new Emergency();
         emergency.setIsCalling(0);
-
         emergencyMapper.update(emergency, new UpdateWrapper<Emergency>().eq("user_id", userId).eq("is_calling", 1));
-
-        return result;
+        return R.success();
     }
 
 }

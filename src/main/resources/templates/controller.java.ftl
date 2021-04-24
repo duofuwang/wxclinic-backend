@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dopoiv.clinic.common.constants.Result;
+import com.dopoiv.clinic.common.web.domain.R;
 import ${package.Mapper}.${table.mapperName};
 import ${package.Entity}.${entity};
 
@@ -31,6 +32,9 @@ import ${superControllerClassPackage};
 </#if>
 
 /**
+ * <p>
+ * ${table.comment!}控制器类
+ * </p>
  *
  * @author ${author}
  * @since ${date}
@@ -42,7 +46,7 @@ import ${superControllerClassPackage};
 </#if>
 @RequestMapping("<#if package.ModuleName??>/${package.ModuleName}</#if>/<#if controllerMappingHyphenStyle??>${controllerMappingHyphen}<#else>${table.entityPath}</#if>")
 <#if kotlin>
-class ${table.controllerName}<#if superControllerClass??> : ${superControllerClass}()</#if>
+    class ${table.controllerName}<#if superControllerClass??> : ${superControllerClass}()</#if>
 <#else>
 <#if superControllerClass??>
 public class ${table.controllerName} extends ${superControllerClass} {
@@ -55,63 +59,53 @@ public class ${table.controllerName} {
     Logger logger = LoggerFactory.getLogger(getClass());
 
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "pageNum",paramType = "query",value = "当前页码",required = true),
-        @ApiImplicitParam(name = "pageSize",paramType = "query",value = "每页显示记录数",required = true)
+            @ApiImplicitParam(name = "pageNum", paramType = "query", value = "当前页码", required = true),
+            @ApiImplicitParam(name = "pageSize", paramType = "query", value = "每页显示记录数", required = true)
     })
     @ApiOperation(value = "分页获取${entity}信息")
-    @RequestMapping(method= RequestMethod.POST,value="/page")
-    public Result page(
-        Integer pageNum,
-        Integer pageSize) {
-        Result result = new Result();
-        Page<${entity}> page = new Page<${entity}>(pageNum, pageSize);
-        ${entity} parms = new ${entity}();
-        QueryWrapper<${entity}> wrapper = new QueryWrapper<${entity}>(parms);
+    @RequestMapping(method = RequestMethod.POST, value = "/page")
+    public R page(
+            Integer pageNum,
+            Integer pageSize) {
+        Page<${entity}> page = new Page<>(pageNum, pageSize);
+        ${entity} params = new ${entity}();
+        QueryWrapper<${entity}> wrapper = new QueryWrapper<>(params);
 
-        result.setData(${table.entityPath}Mapper.selectPage(page, wrapper));
-        return result;
+        return R.data(${table.entityPath}Mapper.selectPage(page, wrapper));
     }
 
     @ApiImplicitParams({
     })
     @ApiOperation(value = "获取全部${entity}信息")
-    @RequestMapping(method= RequestMethod.POST,value="/getAllItems")
-    public Result getAllItems() {
-        Result result = new Result();
-        ${entity} parms = new ${entity}();
-        QueryWrapper<${entity}> wrapper = new QueryWrapper<${entity}>(parms);
+    @RequestMapping(method = RequestMethod.POST, value = "/getAllItems")
+    public R getAllItems() {
+        ${entity} params = new ${entity}();
+        QueryWrapper<${entity}> wrapper = new QueryWrapper<>(params);
         List<${entity}> ${table.entityPath}List = ${table.entityPath}Mapper.selectList(wrapper);
 
-        result.setData(${table.entityPath}List);
-        return result;
+        return R.data(${table.entityPath}List);
     }
 
     @ApiOperation(value = "保存修改${entity}信息")
-    @RequestMapping(method= RequestMethod.POST,value="/save")
-    public Result save(@RequestBody ${entity} entity) {
-        Result result = new Result();
+    @RequestMapping(method = RequestMethod.POST, value = "/save")
+    public R save(@RequestBody ${entity} entity) {
         if (entity.getId() == null) {
             ${table.entityPath}Mapper.insert(entity);
         } else {
             ${table.entityPath}Mapper.updateById(entity);
         }
-        return result;
+        return R.success();
     }
 
     @ApiOperation(value = "按id删除${entity}，可以传入多个id用，隔开")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "ids",paramType = "query",value = "传入的id串，用，隔开",required = true)
+            @ApiImplicitParam(name = "ids", paramType = "query", value = "传入的id串，用，隔开", required = true)
     })
-    @RequestMapping(method= RequestMethod.DELETE,value="/delete")
-    public Result delete( String ids) {
-        Result result = new Result();
-        List<String> deleteIds = new ArrayList<String>();
-        for (String id : ids.split(",")) {
-            deleteIds.add(id);
-        }
+    @RequestMapping(method = RequestMethod.DELETE, value = "/delete")
+    public R delete(String ids) {
+        List<String> deleteIds = new ArrayList<>(Arrays.asList(ids.split(",")));
         ${table.entityPath}Mapper.deleteBatchIds(deleteIds);
-        return result;
+        return R.success();
     }
-
 }
 </#if>

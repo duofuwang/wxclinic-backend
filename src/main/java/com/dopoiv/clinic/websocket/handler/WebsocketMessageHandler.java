@@ -5,10 +5,10 @@ import cn.hutool.core.date.LocalDateTimeUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.dopoiv.clinic.common.constants.Result;
+import com.dopoiv.clinic.common.web.domain.R;
+import com.dopoiv.clinic.project.message.controller.MessageController;
+import com.dopoiv.clinic.project.message.entity.Message;
 import com.dopoiv.clinic.service.DiscardService;
-import com.dopoiv.clinic.sys.controller.MessageController;
-import com.dopoiv.clinic.sys.entity.Message;
 import com.dopoiv.clinic.websocket.DataContent;
 import com.dopoiv.clinic.websocket.UserChannelRel;
 import com.dopoiv.clinic.websocket.enums.MsgActionEnum;
@@ -97,8 +97,8 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
                 logger.debug("senderId: {}, receiverId: {}, msgContent: {}", senderId, receiverId, msgContent);
 
                 // 保存消息到数据库，并标记为 <未读>
-                Result result = messageController.saveMsg(message);
-                logger.debug("消息保存结果：{}, {}", result.getStatusCode(), result.getData());
+                R result = messageController.saveMsg(message);
+                logger.debug("消息保存结果：{}, {}", result.getCode(), result.getData());
 
                 // 将此消息广播给接收方
                 // 从全局用户 Channel 关系中获取接受方的 channel
@@ -145,7 +145,7 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
 
                 if (!msgIdList.isEmpty()) {
                     // 批量签收
-                    Result result = messageController.batchUpdateMsgSigned(msgIdList);
+                    R result = messageController.batchUpdateMsgSigned(msgIdList);
 
                     logger.debug("消息签收结果: {}", result);
                 }

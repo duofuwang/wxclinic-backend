@@ -1,7 +1,6 @@
 package com.dopoiv.clinic.common.client;
 
 import com.dtflys.forest.annotation.*;
-import org.springframework.context.annotation.Bean;
 
 import java.util.Map;
 

@@ -1,7 +1,7 @@
 package com.dopoiv.clinic.websocket;
 
 import com.dopoiv.clinic.common.tools.BaseEntity;
-import com.dopoiv.clinic.sys.entity.Message;
+import com.dopoiv.clinic.project.message.entity.Message;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

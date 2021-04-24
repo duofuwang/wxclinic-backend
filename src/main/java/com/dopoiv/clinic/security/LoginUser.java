@@ -1,6 +1,6 @@
 package com.dopoiv.clinic.security;
 
-import com.dopoiv.clinic.sys.entity.User;
+import com.dopoiv.clinic.project.user.entity.User;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +20,8 @@ public class LoginUser implements UserDetails {
 
     private String token;
 
+    private Long loginTime;
+
     private Long expireTime;
 
     public LoginUser() {
@@ -37,7 +39,7 @@ public class LoginUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return new BCryptPasswordEncoder().encode(user.getOpenId());
+        return new BCryptPasswordEncoder().encode(user.getId());
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.dopoiv.clinic.exception;
 
-import com.dopoiv.clinic.common.constants.Result;
+import com.dopoiv.clinic.common.web.domain.R;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -13,19 +13,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class SysRuntimeExceptionHandler {
 
     @ExceptionHandler(TokenRuntimeException.class)
-    public Result tokenRuntimeException(TokenRuntimeException e) {
+    public R tokenRuntimeException(TokenRuntimeException e) {
         e.printStackTrace();
-        Result result = new Result();
-        result.setStatusCode(e.getCode().toString());
-        result.setMessage(e.getMessage());
+        R result = new R();
+        result.setCode(e.getCode());
+        result.setMsg(e.getMessage());
         return result;
     }
 
     @ExceptionHandler(Exception.class)
-    public Result handlerException(Exception e){
+    public R handlerException(Exception e){
         e.printStackTrace();
-        Result result = new Result();
-        result.addError();
-        return result;
+        return R.error();
     }
 }

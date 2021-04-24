@@ -31,15 +31,15 @@ public class MysqlGenerator {
     /**
      * 包所在路径
      */
-    private static final String packagePath = "com.dopoiv.clinic";
+    private static final String packagePath = "com.dopoiv.clinic.project";
     /**
      * 实体所在的module
      */
-    private static final String packageName = "sys";
+    private static final String packageName = "user";
     /**
      * 数据库表名，支持多个，用,隔开
      */
-    private static final String bean = "application";
+    private static final String bean = "user";
     /**
      * 数据库
      */
@@ -65,14 +65,14 @@ public class MysqlGenerator {
         GlobalConfig gc = new GlobalConfig();
         String projectPath = System.getProperty("user.dir");
         gc.setOutputDir(projectPath + "/src/main/java");
-        gc.setAuthor("dov");
+        gc.setAuthor("duofuwang");
         gc.setOpen(false);
         gc.setSwagger2(blSwagger);
         mpg.setGlobalConfig(gc);
 
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://localhost:3306/" + database + "?useUnicode=true&serverTimezone=GMT&useSSL=false&characterEncoding=utf8&allowPublicKeyRetrieval=true");
+        dsc.setUrl("jdbc:mysql://ip:3306/" + database + "?useUnicode=true&serverTimezone=GMT&useSSL=false&characterEncoding=utf8&allowPublicKeyRetrieval=true");
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
         dsc.setUsername(username);
         dsc.setPassword(password);
@@ -114,12 +114,12 @@ public class MysqlGenerator {
 
         // 配置自定义输出模板
         //指定自定义模板路径，注意不要带上.ftl/.vm, 会根据使用的模板引擎自动识别
-        templateConfig.setController("templates/controller.java");
-        templateConfig.setEntity("templates/entity.java");
-        templateConfig.setMapper("templates/mapper.java");
+//        templateConfig.setController("templates/controller.java");
+//        templateConfig.setEntity("templates/entity.java");
+//        templateConfig.setMapper("templates/mapper.java");
 
-        templateConfig.setService("");
-        templateConfig.setServiceImpl("");
+//        templateConfig.setService("");
+//        templateConfig.setServiceImpl("");
 
         templateConfig.setXml(null);
         mpg.setTemplate(templateConfig);
@@ -130,9 +130,9 @@ public class MysqlGenerator {
         StrategyConfig strategy = new StrategyConfig();
         strategy.setNaming(NamingStrategy.underline_to_camel);
         strategy.setColumnNaming(NamingStrategy.underline_to_camel);
-        strategy.setSuperEntityClass(packagePath + ".common.tools.BaseEntity");
+        strategy.setSuperEntityClass("com.dopoiv.clinic.common.tools.BaseEntity");
         strategy.setEntityLombokModel(true);
-        strategy.setSuperControllerClass(packagePath + ".common.tools.BaseController");
+        strategy.setSuperControllerClass("com.dopoiv.clinic.common.tools.BaseController");
         strategy.setInclude(bean.split(","));
         strategy.setSuperEntityColumns("id");
         strategy.setControllerMappingHyphenStyle(true);
