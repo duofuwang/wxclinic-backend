@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -48,26 +47,21 @@ public class JwtUtil {
     @Value("${token.expireTime}")
     private int expireTime;
 
+    /**
+     * 刷新阈值
+     */
+    @Value("${token.threshold}")
+    private int threshold;
+
     @Autowired
     private RedisCache redisCache;
 
     @Autowired
     UserMapper userMapper;
 
-    /**
-     * 一秒钟
-     */
     protected static final long MILLIS_SECOND = 1000;
 
-    /**
-     * 一分钟
-     */
     protected static final long MILLIS_MINUTE = 60 * MILLIS_SECOND;
-
-    /**
-     * 5天
-     */
-    private static final Long MILLIS_MINUTE_TEN = 5 * 24 * 60 * 60 * 1000L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtUtil.class);
 
@@ -96,8 +90,6 @@ public class JwtUtil {
      * @return token
      */
     public String generateToken(String openid, String sessionKey) {
-        Date now = new Date();
-        Date expireDate = new Date(now.getTime() + expireTime * MILLIS_MINUTE);
         Map<String, Object> claims = new HashMap<>();
         claims.put("openid", openid);
         claims.put("sessionKey", sessionKey);
@@ -105,7 +97,6 @@ public class JwtUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setHeaderParam("typ", "JWT")
-//                .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
@@ -117,18 +108,16 @@ public class JwtUtil {
      * @return token 字符
      */
     public String generateToken(Claims claims) {
-        Date now = new Date();
-        Date expireDate = new Date(now.getTime() + expireTime * MILLIS_MINUTE);
         return Jwts.builder()
                 .setClaims(claims)
                 .setHeaderParam("typ", "JWT")
-//                .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
 
     /**
      * 创建 token
+     *
      * @param loginUser 用户登录信息
      * @return token
      */
@@ -139,31 +128,11 @@ public class JwtUtil {
         return loginUser.getToken();
     }
 
-
-    /**
-     * 从 token 中获取用户 id
-     *
-     * @param token token
-     * @return 用户 id
-     */
-    public String getUserIdFromToken(String token) {
-        try {
-            return getClaimsFromToken(token).getSubject();
-        } catch (ExpiredJwtException e) {
-            LOGGER.debug("token expired");
-            //如果过期, 需要在此处异常调用如下的方法, 否则拿不到用户名
-            return e.getClaims().getSubject();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     /**
      * 解析 token
      *
      * @param token 传入 token 字符串
-     * @return Claims信息
+     * @return Claims 信息
      */
     public Claims getClaimsFromToken(String token) {
         try {
@@ -179,31 +148,6 @@ public class JwtUtil {
     }
 
     /**
-     * 从 token 中获取过期时间
-     *
-     * @param token token
-     * @return 过期时间
-     */
-    public Date getExpirationDateFromToken(String token) {
-        Date expiration;
-        try {
-            Claims claims = getClaimsFromToken(token);
-            expiration = claims.getExpiration();
-        } catch (Exception e) {
-            expiration = null;
-        }
-        return expiration;
-    }
-
-    /**
-     * 判断 token 是否过期
-     */
-    public boolean isTokenExpired(String token) {
-        Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
-    }
-
-    /**
      * 获取请求 token
      *
      * @param request 请求体
@@ -213,58 +157,30 @@ public class JwtUtil {
         return request.getHeader(header);
     }
 
-
     /**
-     * token 是否可以被刷新(过期就可以被刷新)
+     * token 是否可以被刷新 (即将过期就可以被刷新)
      *
-     * @param token token
+     * @param loginUser 登录信息
      * @return 可以：true 不可以：false
      */
-    public Boolean canTokenBeRefreshed(String token) {
-        return isTokenExpired(token);
+    public Boolean canTokenBeRefreshed(LoginUser loginUser) {
+        // 过期时间
+        long expireTime = loginUser.getExpireTime();
+        // 当前时间
+        long currentTime = System.currentTimeMillis();
+        return expireTime - currentTime <= (threshold * MILLIS_MINUTE);
     }
 
     /**
      * 验证令牌有效期，如果相差不足 10 分钟，则自动刷新缓存
      *
-     * @param loginUser 令牌
+     * @param loginUser 登录信息
      */
     public void verifyToken(LoginUser loginUser) {
-        // 令牌过期时间
-        long expireTime = loginUser.getExpireTime();
-        // 当前时间
-        long currentTime = System.currentTimeMillis();
-        // 如果相差不足 10 分钟，则自动刷新缓存
-        if (expireTime - currentTime <= (10 * MILLIS_MINUTE)) {
+        // 如果 token 即将到期，则自动刷新缓存中 token 的有效时间
+        if (canTokenBeRefreshed(loginUser)) {
             refreshToken(loginUser);
         }
-    }
-
-    /**
-     * 判断 token 是否合法
-     *
-     * @param token token
-     * @param user  用户对象
-     * @return 合法：true 不合法：false
-     */
-    public Boolean validateToken(String token, User user) {
-        String userId = getUserIdFromToken(token);
-        //如果用户名与token一致且token没有过期, 则认为合法
-        return (userId.equals(user.getId()) && !isTokenExpired(token));
-    }
-
-    public String refreshToken(String token) {
-        String refreshedToken;
-        try {
-            // 获得 Token 的 Claims, 由于在生成 JWT 的时候会根据当前时间更新过期时间, 我们只需要手动修改
-            // 放在自定义属性中的创建时间就可以了
-            Claims claims = getClaimsFromToken(token);
-            // 利用修改后的claims再次生成token, 就不需要我们每次都去查用户的信息和权限了
-            refreshedToken = generateToken(claims);
-        } catch (Exception e) {
-            refreshedToken = null;
-        }
-        return refreshedToken;
     }
 
     /**
@@ -281,7 +197,6 @@ public class JwtUtil {
         String userKey = getTokenKey(loginUser.getToken());
         redisCache.setCacheObject(userKey, loginUser, expireTime, TimeUnit.MINUTES);
         LOGGER.debug("更新 token 缓存 key: {}，value: {}", userKey, loginUser);
-        LOGGER.debug("取得 token 缓存: {}", redisCache.getCacheObject(userKey).toString());
     }
 
     /**
