@@ -2,7 +2,7 @@ package com.dopoiv.clinic.common.constant;
 
 /**
  * http 状态码
- * @author doverwong
+ * @author dov
  * @date 2021/4/23 20:05
  */
 public class HttpStatus {

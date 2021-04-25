@@ -5,7 +5,7 @@ import com.dtflys.forest.annotation.*;
 import java.util.Map;
 
 /**
- * @author doverwong
+ * @author dov
  * @date 2020/12/27 19:54
  */
 public interface MyHttpClient {

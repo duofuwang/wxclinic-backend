@@ -28,7 +28,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- 与数据库操作相关的依赖-->
+        <!-- 与数据库操作相关的依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
@@ -39,7 +39,7 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
-        <!--mybatis-plus-->
+        <!-- mybatis-plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
@@ -57,7 +57,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
-        <!-- 代码生成器-->
+        <!-- 代码生成器 -->
 
         <!-- lombok -->
         <dependency>
@@ -120,7 +120,7 @@
             <version>4.1.59.Final</version>
         </dependency>
 
-        <!-- Actuator监控 -->
+        <!-- Actuator 监控 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -152,7 +152,7 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
-        <!-- lettuce客户端需要使用到 -->
+        <!-- lettuce 客户端需要使用到 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>

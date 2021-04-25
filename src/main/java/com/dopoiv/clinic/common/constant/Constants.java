@@ -1,7 +1,7 @@
 package com.dopoiv.clinic.common.constant;
 
 /**
- * @author doverwong
+ * @author dov
  * @date 2021/4/24 9:55
  */
 public class Constants {

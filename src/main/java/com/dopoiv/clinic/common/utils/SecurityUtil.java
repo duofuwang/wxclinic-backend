@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
- * @author wangduofu
+ * @author dov
  */
 public class SecurityUtil {
 

@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
  */
 
 @Configuration
-@MapperScan("com.dopoiv.clinic.**.mapper")
+@MapperScan("com.dopoiv.clinic.project.*.mapper")
 public class MybatisPlusConfig {
 
     /**

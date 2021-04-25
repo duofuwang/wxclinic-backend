@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author doverwong
+ * @author dov
  * @date 2021/2/25 14:50
  */
 
@@ -75,22 +75,6 @@ public class JwtUtil {
         // 获取请求携带的令牌
         String token = getToken(request);
         if (StrUtil.isNotEmpty(token)) {
-//            Claims claims = getClaimsFromToken(token);
-//
-//            LOGGER.debug("expiration: {}", getExpirationDateFromToken(token));
-//            LOGGER.debug("isTokenExpired: {}", isTokenExpired(token));
-//            LOGGER.debug("claims: {}", getClaimsFromToken(token));
-//            LOGGER.debug("canTokenBeRefreshed: {}", canTokenBeRefreshed(token));
-//            LOGGER.debug("canTokenBeRefreshed: {}", canTokenBeRefreshed(refreshToken(token)));
-
-            // 解析对应的权限以及用户信息
-//            String openid = (String) claims.get("openid");
-//            LoginUser loginUser = new LoginUser();
-//            User user = userMapper.selectById(openid);
-//            loginUser.setUser(user);
-//            loginUser.setToken(token);
-//            loginUser.setExpireTime(claims.getExpiration().getTime());
-//            loginUser.setLoginTime(System.currentTimeMillis());
             String userKey = getTokenKey(token);
             if (redisCache.hasKey(userKey)) {
                 // 查找键为 login_token:token 的缓存
@@ -121,7 +105,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setHeaderParam("typ", "JWT")
-                .setExpiration(expireDate)
+//                .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
@@ -138,7 +122,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setHeaderParam("typ", "JWT")
-                .setExpiration(expireDate)
+//                .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }

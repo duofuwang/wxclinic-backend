@@ -59,7 +59,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 // 对于登录允许匿名访问
-                .antMatchers("/**/wxlogin").anonymous()
+                .antMatchers("/**/wxlogin").permitAll()
                 // 静态资源
                 .antMatchers(
                         HttpMethod.GET,

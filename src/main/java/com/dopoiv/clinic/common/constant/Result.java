@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 请求返回结果对象
  *
- * @author bill.lin
+ * @author dov
  */
 public class Result<T> implements Serializable {
 

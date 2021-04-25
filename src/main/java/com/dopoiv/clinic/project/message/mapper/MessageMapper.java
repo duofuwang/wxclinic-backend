@@ -13,7 +13,6 @@ import java.util.List;
  * @author dov
  * @since 2021-02-28
  */
-@Mapper
 public interface MessageMapper extends BaseMapper<Message> {
 
     /**

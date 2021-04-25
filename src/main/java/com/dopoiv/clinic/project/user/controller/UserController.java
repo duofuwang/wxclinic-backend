@@ -121,8 +121,6 @@ public class UserController extends BaseController {
         // 获取返回的参数 session_key 和 openid
         String openid = sessionKeyOpenId.getString("openid");
         String sessionKey = sessionKeyOpenId.getString("session_key");
-        logger.debug("openid ------> " + openid);
-        logger.debug("sessionKey ------> " + sessionKey);
 
         // 校验签名是否一致
         String signature1 = DigestUtils.sha1Hex(rawData + sessionKey);
@@ -132,7 +130,7 @@ public class UserController extends BaseController {
 
         // 解密用户手机号信息
         JSONObject phoneNumberData = JSON.parseObject(WechatUtil.decrypt(encryptedData, sessionKey, iv));
-        // 校验appid
+        // 校验 appid
         String appid1 = phoneNumberData.getJSONObject("watermark").getString("appid");
         if (!appid1.equals(appid)) {
             return R.error("appid校验失败");
@@ -157,7 +155,6 @@ public class UserController extends BaseController {
                     .setCountryCode(phoneNumberData.getString("countryCode"));
             // 生成 token，并保存用户登录信息
             user.setToken(this.login(user));
-            logger.debug("user -----> " + user);
             userMapper.insert(user);
         } else {
             logger.debug("用户已存在，更新信息");

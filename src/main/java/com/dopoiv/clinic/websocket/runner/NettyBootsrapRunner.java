@@ -38,7 +38,7 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * 初始化Netty服务
- * @author Administrator
+ * @author wangduofu
  */
 @Component
 public class NettyBootsrapRunner implements ApplicationRunner, ApplicationListener<ContextClosedEvent>, ApplicationContextAware {
