@@ -4,12 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.tools.BaseController;
+import com.dopoiv.clinic.common.utils.SecurityUtil;
 import com.dopoiv.clinic.common.utils.UploadUtil;
 import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.project.message.dto.ContactDTO;
 import com.dopoiv.clinic.project.message.entity.Message;
 import com.dopoiv.clinic.project.message.mapper.MessageMapper;
+import com.dopoiv.clinic.project.message.service.impl.MessageServiceImpl;
 import com.dopoiv.clinic.project.user.controller.UserController;
+import com.dopoiv.clinic.project.user.entity.User;
 import com.dopoiv.clinic.websocket.enums.MsgSignFlagEnum;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -41,7 +44,7 @@ public class MessageController extends BaseController {
     private MessageMapper messageMapper;
 
     @Autowired
-    private UserController userController;
+    private MessageServiceImpl messageService;
 
     @Value("${web.upload.path}")
     private String uploadPath;
@@ -127,16 +130,15 @@ public class MessageController extends BaseController {
         return R.success("消息批量签收成功：" + msgIdList.size() + "条");
     }
 
-    @ApiOperation(value = "根据用户 id 获取最近的 num 条信息")
+    @ApiOperation(value = "获取用户最近的 num 条信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", paramType = "String", value = "用户 id", required = true),
-            @ApiImplicitParam(name = "num", paramType = "int", value = "数量", required = true),
+            @ApiImplicitParam(name = "num", paramType = "int", value = "数量"),
             @ApiImplicitParam(name = "friendId", paramType = "String", value = "联系人 id", required = true),
     })
     @RequestMapping(method = RequestMethod.POST, value = "/getRecentMsg")
-    public R getRecentMsg(String userId, String friendId, int num) {
-
-        List<Message> messageList = messageMapper.getRecentMsg(userId, friendId, num);
+    public R getRecentMsg(String friendId, int num) {
+        User user = SecurityUtil.getUserInfo();
+        List<Message> messageList = messageService.getRecentMsg(user.getId(), friendId, num);
         return R.data(messageList);
     }
 
