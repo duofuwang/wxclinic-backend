@@ -20,12 +20,12 @@ public class CodeGenerator {
     /**
      * 模块名
      */
-    private static final String MODULE_NAME = "message";
+    private static final String MODULE_NAME = "admin";
 
     /**
      * 表名
      */
-    private static final String TABLE_NAME = "message";
+    private static final String TABLE_NAME = "admin";
 
     /**
      * 生成的位置
@@ -51,7 +51,7 @@ public class CodeGenerator {
 
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://localhost:3306/clinic?useUnicode=true&useSSL=false&characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://dopoiv.space:3306/clinic?useUnicode=true&useSSL=false&characterEncoding=utf8");
         // dsc.setSchemaName("public");
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
         dsc.setUsername("root");
@@ -61,7 +61,7 @@ public class CodeGenerator {
         // 包配置
         PackageConfig pc = new PackageConfig();
         pc.setModuleName(MODULE_NAME);
-        pc.setParent("com.dopoiv.clinic.project");
+        pc.setParent(PACKAGE_PATH);
         mpg.setPackageInfo(pc);
 
         // 自定义配置
@@ -124,11 +124,11 @@ public class CodeGenerator {
         StrategyConfig strategy = new StrategyConfig();
         strategy.setNaming(NamingStrategy.underline_to_camel);
         strategy.setColumnNaming(NamingStrategy.underline_to_camel);
-        strategy.setSuperEntityClass("com.dopoiv.clinic.common.tools.BaseEntity");
+        strategy.setSuperEntityClass(SUPER_ENTITY_PATH);
         strategy.setEntityLombokModel(true);
         strategy.setRestControllerStyle(true);
         // 公共父类
-        strategy.setSuperControllerClass("com.dopoiv.clinic.common.tools.BaseController");
+        strategy.setSuperControllerClass(SUPER_CONTROLLER_PATH);
         // 写于父类中的公共字段
         strategy.setSuperEntityColumns("id");
         strategy.setInclude(TABLE_NAME.split(","));

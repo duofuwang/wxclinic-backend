@@ -29,7 +29,7 @@ public class ContactDTO extends BaseEntity {
     private String content;
 
     @ApiModelProperty(value = "昵称")
-    private String nickName;
+    private String nickname;
 
     @ApiModelProperty(value = "头像")
     private String avatarUrl;

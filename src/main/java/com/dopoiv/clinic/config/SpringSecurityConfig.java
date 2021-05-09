@@ -2,6 +2,7 @@ package com.dopoiv.clinic.config;
 
 import com.dopoiv.clinic.security.filter.JwtAuthenticationTokenFilter;
 import com.dopoiv.clinic.security.handler.AuthenticationEntryPointImpl;
+import com.dopoiv.clinic.security.handler.LogoutSuccessHandlerImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +39,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationEntryPointImpl unauthorizedHandler;
 
     /**
+     * 退出登录处理类
+     */
+    private LogoutSuccessHandlerImpl logoutSuccessHandler;
+
+    /**
      * token认证过滤器
      */
     private JwtAuthenticationTokenFilter authenticationTokenFilter;
@@ -59,7 +65,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 // 对于登录允许匿名访问
-                .antMatchers("/**/wxlogin").permitAll()
+                .antMatchers("/**/wxlogin", "/**/login").permitAll()
                 // 静态资源
                 .antMatchers(
                         HttpMethod.GET,
@@ -77,6 +83,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 其他请求一律需要验证
                 .anyRequest()
                 .authenticated();
+
+        // 退出登录
+        httpSecurity.logout().logoutUrl("/**/logout").logoutSuccessHandler(logoutSuccessHandler);
         httpSecurity.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }
 

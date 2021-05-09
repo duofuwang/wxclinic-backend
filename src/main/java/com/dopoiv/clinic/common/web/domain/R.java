@@ -1,7 +1,7 @@
 package com.dopoiv.clinic.common.web.domain;
 
 import cn.hutool.core.lang.Dict;
-import com.dopoiv.clinic.common.web.PageDomain;
+import com.dopoiv.clinic.common.web.page.PageDomain;
 import com.dopoiv.clinic.common.web.TableDataInfo;
 import org.springframework.lang.Nullable;
 

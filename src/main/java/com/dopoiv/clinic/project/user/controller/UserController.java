@@ -3,14 +3,17 @@ package com.dopoiv.clinic.project.user.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.utils.JwtUtil;
 import com.dopoiv.clinic.common.utils.SecurityUtil;
 import com.dopoiv.clinic.common.utils.WechatUtil;
 import com.dopoiv.clinic.common.web.domain.R;
+import com.dopoiv.clinic.common.web.page.PageDomain;
 import com.dopoiv.clinic.project.user.entity.User;
 import com.dopoiv.clinic.project.user.mapper.UserMapper;
+import com.dopoiv.clinic.project.user.service.IUserService;
 import com.dopoiv.clinic.security.LoginUser;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -25,10 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -51,6 +51,9 @@ public class UserController extends BaseController {
     private UserMapper userMapper;
 
     @Autowired
+    private IUserService userService;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     Logger logger = LoggerFactory.getLogger(getClass());
@@ -60,18 +63,14 @@ public class UserController extends BaseController {
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", paramType = "query", value = "当前页码", required = true),
-            @ApiImplicitParam(name = "pageSize", paramType = "query", value = "每页显示记录数", required = true)
+            @ApiImplicitParam(name = "pageSize", paramType = "query", value = "每页显示记录数", required = true),
+            @ApiImplicitParam(name = "User", paramType = "query", value = "查询参数")
     })
     @ApiOperation(value = "分页获取User信息")
-    @RequestMapping(method = RequestMethod.POST, value = "/page")
-    public R page(
-            Integer pageNum,
-            Integer pageSize) {
-        Page<User> page = new Page<>(pageNum, pageSize);
-        User params = new User();
-        QueryWrapper<User> wrapper = new QueryWrapper<>(params);
-
-        return R.data(userMapper.selectPage(page, wrapper));
+    @GetMapping("/page")
+    public R page(User user) {
+        PageDomain pageDomain = startMybatisPlusPage();
+        return R.data(userService.pageForQuery(user, pageDomain));
     }
 
     @ApiImplicitParams({
@@ -152,7 +151,8 @@ public class UserController extends BaseController {
                     .setSessionKey(sessionKey)
                     .setPhoneNumber(phoneNumberData.getString("phoneNumber"))
                     .setPurePhoneNumber(phoneNumberData.getString("purePhoneNumber"))
-                    .setCountryCode(phoneNumberData.getString("countryCode"));
+                    .setCountryCode(phoneNumberData.getString("countryCode"))
+                    .setStatus(1);
             // 生成 token，并保存用户登录信息
             user.setToken(this.login(user));
             userMapper.insert(user);
@@ -168,13 +168,27 @@ public class UserController extends BaseController {
         return R.data(user);
     }
 
-    @ApiOperation(value = "获取用户信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", paramType = "String", value = "userId", required = true)
-    })
-    @RequestMapping(method = RequestMethod.POST, value = "/getUserInfo")
+    @ApiOperation(value = "获取当前用户信息")
+    @GetMapping("/getUserInfo")
     public R getUserInfo() {
-        return R.data(SecurityUtil.getUserInfo());
+        User user = SecurityUtil.getUserInfo();
+        return R.data(userService.getById(user.getId()));
+    }
+
+    @ApiOperation(value = "获取用户信息")
+    @GetMapping("/{userId}")
+    public R getUserById(@PathVariable("userId") String userId) {
+        return R.data(userService.getById(userId));
+    }
+
+    @ApiOperation(value = "更改用户状态")
+    @PutMapping("/changeStatus")
+    public R changeStatus(@RequestBody User user) {
+        return R.status(userService.update(
+                Wrappers.<User>lambdaUpdate()
+                        .eq(User::getId, user.getId())
+                        .set(User::getStatus, user.getStatus()))
+        );
     }
 
     public String login(User user) {
@@ -188,6 +202,7 @@ public class UserController extends BaseController {
         return jwtUtil.createToken(loginUser);
     }
 
+
     /**
      * 判断用户是否存在
      *
@@ -198,17 +213,5 @@ public class UserController extends BaseController {
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         userQueryWrapper.eq("id", userId);
         return userMapper.selectCount(userQueryWrapper) != 0;
-    }
-
-    /**
-     * 判断用户是否存在
-     *
-     * @param userId 用户 id
-     * @return boolean 存在：false 不存在：true
-     */
-    public boolean notExists(String userId) {
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("id", userId);
-        return userMapper.selectCount(userQueryWrapper) == 0;
     }
 }

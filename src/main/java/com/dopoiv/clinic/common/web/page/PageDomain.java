@@ -1,4 +1,4 @@
-package com.dopoiv.clinic.common.web;
+package com.dopoiv.clinic.common.web.page;
 
 import com.dopoiv.clinic.common.utils.StringUtil;
 

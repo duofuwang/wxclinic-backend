@@ -1,5 +1,6 @@
 package com.dopoiv.clinic.project.message.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,7 +12,6 @@ import com.dopoiv.clinic.project.message.dto.ContactDTO;
 import com.dopoiv.clinic.project.message.entity.Message;
 import com.dopoiv.clinic.project.message.mapper.MessageMapper;
 import com.dopoiv.clinic.project.message.service.impl.MessageServiceImpl;
-import com.dopoiv.clinic.project.user.controller.UserController;
 import com.dopoiv.clinic.project.user.entity.User;
 import com.dopoiv.clinic.websocket.enums.MsgSignFlagEnum;
 import io.swagger.annotations.ApiImplicitParam;
@@ -20,7 +20,6 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,9 +44,6 @@ public class MessageController extends BaseController {
 
     @Autowired
     private MessageServiceImpl messageService;
-
-    @Value("${web.upload.path}")
-    private String uploadPath;
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -173,9 +169,10 @@ public class MessageController extends BaseController {
         logger.debug(file.getOriginalFilename());
         logger.debug(file.getName());
         logger.debug(String.valueOf(file.getSize()));
-        if(!UploadUtil.save(file, uploadPath)) {
+        String filename = UploadUtil.save(file);
+        if(StrUtil.isEmpty(filename)) {
             return R.error("保存失败");
         }
-        return R.data("http://localhost:8686/clinic/static/" + file.getOriginalFilename());
+        return R.data("http://localhost:8686/clinic/static/" + filename);
     }
 }

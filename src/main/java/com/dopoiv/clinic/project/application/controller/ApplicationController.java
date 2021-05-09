@@ -1,28 +1,30 @@
 package com.dopoiv.clinic.project.application.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.web.domain.R;
+import com.dopoiv.clinic.common.web.page.PageDomain;
 import com.dopoiv.clinic.project.application.entity.Application;
 import com.dopoiv.clinic.project.application.mapper.ApplicationMapper;
+import com.dopoiv.clinic.project.application.service.IApplicationService;
+import com.dopoiv.clinic.project.application.vo.UserApplicationVo;
 import com.dopoiv.clinic.project.order.entity.VisitOrder;
 import com.dopoiv.clinic.project.order.mapper.VisitOrderMapper;
-import com.dopoiv.clinic.project.user.controller.UserController;
+import com.dopoiv.clinic.project.user.entity.User;
+import com.dopoiv.clinic.project.user.mapper.UserMapper;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -46,27 +48,21 @@ public class ApplicationController extends BaseController {
     private ApplicationMapper applicationMapper;
 
     @Autowired
-    UserController userController;
+    private VisitOrderMapper visitOrderMapper;
 
     @Autowired
-    VisitOrderMapper visitOrderMapper;
+    private IApplicationService applicationService;
+
+    @Autowired
+    private UserMapper userMapper;
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", paramType = "query", value = "当前页码", required = true),
-            @ApiImplicitParam(name = "pageSize", paramType = "query", value = "每页显示记录数", required = true)
-    })
     @ApiOperation(value = "分页获取Application信息")
-    @RequestMapping(method = RequestMethod.POST, value = "/page")
-    public R page(
-            Integer pageNum,
-            Integer pageSize) {
-        Page<Application> page = new Page<>(pageNum, pageSize);
-        Application params = new Application();
-        QueryWrapper<Application> wrapper = new QueryWrapper<>(params);
-
-        return R.data(applicationMapper.selectPage(page, wrapper));
+    @GetMapping("/page")
+    public R page(UserApplicationVo params, String startDate, String endDate) {
+        PageDomain pageDomain = startMybatisPlusPage();
+        return R.data(applicationService.pageForQuery(pageDomain, params, startDate, endDate));
     }
 
     @ApiImplicitParams({
@@ -129,14 +125,11 @@ public class ApplicationController extends BaseController {
         logger.debug("body: {}", body);
         Application application = JSONObject.parseObject(JSONObject.toJSONString(body), Application.class);
         logger.debug("application: {}", application);
-        if (!userController.exists(application.getUserId())) {
-            return R.error("用户不存在");
-        }
-        if ("visit".equals(application.getType())) {
+        if (2 == application.getType()) {
             return saveVisit(body, application);
         }
 
-        if ("appointment".equals(application.getType())) {
+        if (1 == application.getType()) {
             return saveAppointment(application);
         }
         return R.success();
@@ -189,16 +182,13 @@ public class ApplicationController extends BaseController {
     })
     @RequestMapping(method = RequestMethod.POST, value = "/getApplicationList")
     public R getApplicationList(String userId) {
-        if (!userController.exists(userId)) {
-            return R.error("用户不存在");
-        }
         QueryWrapper<Application> applicationQueryWrapper = new QueryWrapper<>();
         applicationQueryWrapper
                 .eq("user_id", userId)
                 .orderByDesc("create_time");
         List<Application> applicationList = applicationMapper.selectList(applicationQueryWrapper);
         for (Application application : applicationList) {
-            if ("visit".equals(application.getType())) {
+            if (2 == application.getType()) {
                 QueryWrapper<VisitOrder> visitOrderQueryWrapper = new QueryWrapper<>();
                 visitOrderQueryWrapper.eq("visit_id", application.getId());
                 VisitOrder visitOrder = visitOrderMapper.selectOne(visitOrderQueryWrapper);
@@ -206,5 +196,40 @@ public class ApplicationController extends BaseController {
             }
         }
         return R.data(applicationList);
+    }
+
+    @ApiOperation(value = "批准申请")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "applicationId", paramType = "String", value = "申请id", required = true)
+    })
+    @PutMapping("/approve/{applicationId}")
+    public R approve(@PathVariable String applicationId) {
+        return R.status(applicationService.update(
+                Wrappers.<Application>lambdaUpdate()
+                        .eq(Application::getId, applicationId)
+                        .set(Application::getStatus, 1))
+        );
+    }
+
+    @ApiOperation(value = "拒绝申请")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "applicationId", paramType = "String", value = "申请id", required = true)
+    })
+    @PutMapping("/reject/{applicationId}")
+    public R reject(@PathVariable String applicationId) {
+        return R.status(applicationService.update(
+                Wrappers.<Application>lambdaUpdate()
+                        .eq(Application::getId, applicationId)
+                        .set(Application::getStatus, 0))
+        );
+    }
+
+    @ApiOperation(value = "根据id获取申请信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "applicationId", paramType = "String", value = "申请id", required = true)
+    })
+    @GetMapping("/{applicationId}")
+    public R getById(@PathVariable String applicationId) {
+        return R.data(applicationService.getUserApplication(applicationId));
     }
 }

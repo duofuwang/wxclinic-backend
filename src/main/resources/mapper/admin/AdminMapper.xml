@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dopoiv.clinic.project.application.mapper.ApplicationMapper">
+<mapper namespace="com.dopoiv.clinic.project.admin.mapper.AdminMapper">
 
-    <select id="selectPageForQuery" resultType="com.dopoiv.clinic.project.application.vo.UserApplicationVo">
+    <select id="getAdminList" resultType="com.dopoiv.clinic.project.admin.entity.Admin">
         SELECT ta.id
+        , ta.`password`
+        , tu.id AS user_id
+        , tu.avatar_url
         , tu.nickname
         , tu.real_name
         , tu.phone_number
-        , address
-        , time
-        , image
-        , description
-        , ta.create_time
-        , ta.status
-        FROM `application` AS ta
+        , tu.last_visit_time
+        , tu.status
+        FROM admin AS ta
         LEFT JOIN `user` AS tu ON tu.id = ta.user_id
         WHERE tu.deleted = 0
         <if test="params.nickname != null and params.nickname != ''">
@@ -25,16 +24,8 @@
         <if test="params.phoneNumber != null and params.phoneNumber != ''">
             AND tu.phone_number = #{params.phoneNumber}
         </if>
-        <if test="params.type != null and params.type != ''">
-            AND ta.type = #{params.type}
-        </if>
         <if test="params.status != null and params.status != ''">
-            AND ta.status = #{params.status}
+            AND tu.status = #{params.status}
         </if>
-        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
-            AND DATE_FORMAT(ta.create_time, '%Y-%m-%d') BETWEEN DATE_FORMAT(#{startDate}, '%Y-%m-%d') and
-            DATE_FORMAT(#{endDate}, '%Y-%U-%d')
-        </if>
-        ORDER BY ta.create_time DESC
     </select>
 </mapper>

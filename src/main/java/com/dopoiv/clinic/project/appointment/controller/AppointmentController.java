@@ -6,17 +6,13 @@ import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.project.appointment.entity.Appointment;
 import com.dopoiv.clinic.project.appointment.mapper.AppointmentMapper;
-import com.dopoiv.clinic.project.user.controller.UserController;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,9 +33,6 @@ public class AppointmentController extends BaseController {
     @Autowired
     private AppointmentMapper appointmentMapper;
 
-    @Autowired
-    UserController userController;
-
     Logger logger = LoggerFactory.getLogger(getClass());
 
     @ApiImplicitParams({
@@ -47,7 +40,7 @@ public class AppointmentController extends BaseController {
             @ApiImplicitParam(name = "pageSize", paramType = "query", value = "每页显示记录数", required = true)
     })
     @ApiOperation(value = "分页获取Appointment信息")
-    @RequestMapping(method = RequestMethod.POST, value = "/page")
+    @GetMapping("/page")
     public R page(
             Integer pageNum,
             Integer pageSize) {
@@ -73,10 +66,6 @@ public class AppointmentController extends BaseController {
     @ApiOperation(value = "保存修改Appointment信息")
     @RequestMapping(method = RequestMethod.POST, value = "/save")
     public R save(@RequestBody Appointment entity) {
-
-        if (!userController.exists(entity.getUserId())) {
-            return R.error("用户不存在");
-        }
 
         if (entity.getId() == null) {
             entity.setCreateTime(LocalDateTime.now());

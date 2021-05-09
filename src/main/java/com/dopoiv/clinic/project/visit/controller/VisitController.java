@@ -9,7 +9,6 @@ import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.project.order.entity.VisitOrder;
 import com.dopoiv.clinic.project.order.mapper.VisitOrderMapper;
-import com.dopoiv.clinic.project.user.controller.UserController;
 import com.dopoiv.clinic.project.visit.entity.Visit;
 import com.dopoiv.clinic.project.visit.mapper.VisitMapper;
 import io.swagger.annotations.ApiImplicitParam;
@@ -43,9 +42,6 @@ import java.util.Map;
 public class VisitController extends BaseController {
     @Autowired
     private VisitMapper visitMapper;
-
-    @Autowired
-    UserController userController;
 
     @Autowired
     VisitOrderMapper visitOrderMapper;
@@ -84,9 +80,6 @@ public class VisitController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "/save")
     public R save(@RequestBody Map<String, String> body) {
         Visit entity = JSONObject.parseObject(JSONObject.toJSONString(body), Visit.class);
-        if (!userController.exists(entity.getUserId())) {
-            return R.error("用户不存在");
-        }
 
         if (entity.getId() == null) {
             // 新的出诊请求

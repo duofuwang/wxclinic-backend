@@ -83,6 +83,16 @@ public class JwtUtil {
     }
 
     /**
+     * 用户登出，删除缓存中的 token
+     * @param token token信息
+     */
+    public void deleteLoginUser(String token) {
+        if (StrUtil.isNotEmpty(token) && redisCache.hasKey(getTokenKey(token))) {
+            redisCache.deleteObject(getTokenKey(token));
+        }
+    }
+
+    /**
      * 创建一个 token
      *
      * @param openid     用户标识

@@ -47,8 +47,8 @@ public class Application extends BaseEntity {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
-    @ApiModelProperty(value = "申请类型，预约：appointment；出诊：visit")
-    private String type;
+    @ApiModelProperty(value = "申请类型，1预约 2出诊")
+    private Integer type;
 
     @ApiModelProperty(value = "审核状态；0：拒绝，1：通过，-1：撤销")
     private Integer status;

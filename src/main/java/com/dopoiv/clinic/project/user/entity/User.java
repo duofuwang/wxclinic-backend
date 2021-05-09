@@ -1,5 +1,6 @@
 package com.dopoiv.clinic.project.user.entity;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.dopoiv.clinic.common.tools.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,7 +40,7 @@ public class User extends BaseEntity {
     private String sessionKey;
 
     @ApiModelProperty(value = "用户昵称")
-    private String nickName;
+    private String nickname;
 
     @ApiModelProperty(value = "用户头像")
     private String avatarUrl;
@@ -55,7 +56,7 @@ public class User extends BaseEntity {
     private LocalDateTime lastVisitTime;
 
     @ApiModelProperty(value = "用户性别，1是男性，2是女性，0是未知")
-    private String gender;
+    private Integer gender;
 
     @ApiModelProperty(value = "用户所在省份")
     private String province;
@@ -97,4 +98,11 @@ public class User extends BaseEntity {
 
     @ApiModelProperty(value = "体重")
     private Double weight;
+
+    @ApiModelProperty(value = "状态 1启用 0禁用")
+    private Integer status;
+
+    @TableLogic
+    @ApiModelProperty(value = "逻辑删除 1删除 0不删除")
+    private Integer deleted;
 }

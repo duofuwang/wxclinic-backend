@@ -10,7 +10,7 @@ import com.dopoiv.clinic.project.user.entity.User;
 public class Test {
     public static void main(String[] args) {
         User user = new User();
-        user.setNickName("Mary").setPhoneNumber("17605941026");
+        user.setNickname("Mary").setPhoneNumber("17605941026");
         Dict dict = Dict.create().set("user", user);
         System.out.println(dict.toString());
     }
