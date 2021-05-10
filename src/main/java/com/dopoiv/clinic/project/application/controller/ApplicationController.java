@@ -2,6 +2,7 @@ package com.dopoiv.clinic.project.application.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -13,6 +14,7 @@ import com.dopoiv.clinic.common.web.page.PageDomain;
 import com.dopoiv.clinic.project.application.entity.Application;
 import com.dopoiv.clinic.project.application.mapper.ApplicationMapper;
 import com.dopoiv.clinic.project.application.service.IApplicationService;
+import com.dopoiv.clinic.project.application.vo.ReviewApplicationVo;
 import com.dopoiv.clinic.project.application.vo.UserApplicationVo;
 import com.dopoiv.clinic.project.order.entity.VisitOrder;
 import com.dopoiv.clinic.project.order.mapper.VisitOrderMapper;
@@ -151,6 +153,7 @@ public class ApplicationController extends BaseController {
         LocalDateTime offset = LocalDateTimeUtil.offset(localDateTime, Long.parseLong(day), ChronoUnit.DAYS);
         entity.setTime(offset);
         entity.setCreateTime(LocalDateTime.now());
+        entity.setStatus(0);
         applicationMapper.insert(entity);
 
         // 同时生成出诊订单
@@ -172,6 +175,7 @@ public class ApplicationController extends BaseController {
      */
     public R saveAppointment(Application entity) {
         entity.setCreateTime(LocalDateTime.now());
+        entity.setStatus(0);
         applicationMapper.insert(entity);
         return R.success();
     }
@@ -200,28 +204,40 @@ public class ApplicationController extends BaseController {
 
     @ApiOperation(value = "批准申请")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "applicationId", paramType = "String", value = "申请id", required = true)
+            @ApiImplicitParam(name = "applicationId", paramType = "body", value = "申请id", required = true),
+            @ApiImplicitParam(name = "remark", paramType = "body", value = "备注")
     })
-    @PutMapping("/approve/{applicationId}")
-    public R approve(@PathVariable String applicationId) {
-        return R.status(applicationService.update(
-                Wrappers.<Application>lambdaUpdate()
-                        .eq(Application::getId, applicationId)
-                        .set(Application::getStatus, 1))
-        );
+    @PutMapping("/approve")
+    public R approve(@RequestBody ReviewApplicationVo reviewApplication) {
+        return R.status(applicationService.update(Wrappers.<Application>lambdaUpdate()
+                .eq(Application::getId, reviewApplication.getApplicationId())
+                .set(Application::getStatus, 1)
+                .set(StrUtil.isNotEmpty(reviewApplication.getRemark()),
+                        Application::getRemark,
+                        reviewApplication.getRemark())
+                .set(StrUtil.isEmpty(reviewApplication.getRemark()),
+                        Application::getRemark,
+                        "无")
+        ));
     }
 
     @ApiOperation(value = "拒绝申请")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "applicationId", paramType = "String", value = "申请id", required = true)
+            @ApiImplicitParam(name = "applicationId", paramType = "String", value = "申请id", required = true),
+            @ApiImplicitParam(name = "remark", paramType = "body", value = "备注")
     })
-    @PutMapping("/reject/{applicationId}")
-    public R reject(@PathVariable String applicationId) {
-        return R.status(applicationService.update(
-                Wrappers.<Application>lambdaUpdate()
-                        .eq(Application::getId, applicationId)
-                        .set(Application::getStatus, 0))
-        );
+    @PutMapping("/reject")
+    public R reject(@RequestBody ReviewApplicationVo reviewApplication) {
+        return R.status(applicationService.update(Wrappers.<Application>lambdaUpdate()
+                .eq(Application::getId, reviewApplication.getApplicationId())
+                .set(Application::getStatus, 2)
+                .set(StrUtil.isNotEmpty(reviewApplication.getRemark()),
+                        Application::getRemark,
+                        reviewApplication.getRemark())
+                .set(StrUtil.isEmpty(reviewApplication.getRemark()),
+                        Application::getRemark,
+                        "无")
+        ));
     }
 
     @ApiOperation(value = "根据id获取申请信息")

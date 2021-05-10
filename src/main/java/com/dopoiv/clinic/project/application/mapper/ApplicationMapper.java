@@ -18,6 +18,8 @@ public interface ApplicationMapper extends BaseMapper<Application> {
      *
      * @param page 分页
      * @param params 查询参数
+     * @param startDate 开始时间
+     * @param endDate 结束时间
      * @return 分页数据
      */
     IPage<UserApplicationVo> selectPageForQuery(Page<UserApplicationVo> page, UserApplicationVo params, String startDate, String endDate);

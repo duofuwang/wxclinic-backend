@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dopoiv.clinic.project.application.mapper.ApplicationMapper">
+<mapper namespace="com.dopoiv.clinic.project.emergency.mapper.EmergencyMapper">
 
-    <select id="selectPageForQuery" resultType="com.dopoiv.clinic.project.application.vo.UserApplicationVo">
-        SELECT ta.id
+    <select id="selectPageForQuery" resultType="com.dopoiv.clinic.project.emergency.vo.UserEmergencyVo">
+        SELECT te.id
         , tu.nickname
         , tu.real_name
         , tu.phone_number
-        , ta.address
-        , ta.time
-        , ta.image
-        , ta.description
-        , ta.create_time
-        , ta.status
-        FROM `application` AS ta
-        LEFT JOIN `user` AS tu ON tu.id = ta.user_id
+        , te.message
+        , te.location
+        , te.latitude
+        , te.longitude
+        , te.remark
+        , te.create_time
+        , te.status
+        FROM `emergency` AS te
+        LEFT JOIN `user` AS tu ON tu.id = te.user_id
         WHERE tu.deleted = 0
         <if test="params.nickname != null and params.nickname != ''">
             AND nickname LIKE CONCAT('%', #{params.nickname}, '%')
@@ -25,16 +26,13 @@
         <if test="params.phoneNumber != null and params.phoneNumber != ''">
             AND tu.phone_number = #{params.phoneNumber}
         </if>
-        <if test="params.type != null and params.type != ''">
-            AND ta.type = #{params.type}
-        </if>
         <if test="params.status != null">
-            AND ta.status = #{params.status}
+            AND te.status = #{params.status}
         </if>
         <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
-            AND DATE_FORMAT(ta.create_time, '%Y-%m-%d') BETWEEN DATE_FORMAT(#{startDate}, '%Y-%m-%d') and
+            AND DATE_FORMAT(te.create_time, '%Y-%m-%d') BETWEEN DATE_FORMAT(#{startDate}, '%Y-%m-%d') and
             DATE_FORMAT(#{endDate}, '%Y-%m-%d')
         </if>
-        ORDER BY ta.create_time DESC
+        ORDER BY te.status, te.create_time
     </select>
 </mapper>

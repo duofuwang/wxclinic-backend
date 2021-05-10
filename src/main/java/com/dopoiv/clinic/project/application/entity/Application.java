@@ -50,6 +50,10 @@ public class Application extends BaseEntity {
     @ApiModelProperty(value = "申请类型，1预约 2出诊")
     private Integer type;
 
-    @ApiModelProperty(value = "审核状态；0：拒绝，1：通过，-1：撤销")
+
+    @ApiModelProperty(value = "审核状态 0审核中 1通过 2拒绝 3撤销")
     private Integer status;
+
+    @ApiModelProperty(value = "审核备注")
+    private String remark;
 }

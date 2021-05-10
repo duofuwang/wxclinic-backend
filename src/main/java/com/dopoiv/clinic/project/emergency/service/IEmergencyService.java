@@ -1,11 +1,14 @@
 package com.dopoiv.clinic.project.emergency.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.dopoiv.clinic.common.web.page.PageDomain;
 import com.dopoiv.clinic.project.emergency.entity.Emergency;
+import com.dopoiv.clinic.project.emergency.vo.UserEmergencyVo;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author duofuwang
@@ -13,4 +16,14 @@ import com.dopoiv.clinic.project.emergency.entity.Emergency;
  */
 public interface IEmergencyService extends IService<Emergency> {
 
+    /**
+     * 分页查询申请列表
+     *
+     * @param pageDomain 分页
+     * @param params     查询参数
+     * @param startDate  开始时间
+     * @param endDate    结束时间
+     * @return 分页数据
+     */
+    IPage<UserEmergencyVo> pageForQuery(PageDomain pageDomain, UserEmergencyVo params, String startDate, String endDate);
 }
