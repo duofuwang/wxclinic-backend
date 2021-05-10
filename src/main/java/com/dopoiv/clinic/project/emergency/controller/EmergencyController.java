@@ -119,4 +119,13 @@ public class EmergencyController extends BaseController {
                         .set(Emergency::getStatus, 2)
         ));
     }
+
+    @ApiOperation(value = "根据id获取呼救信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "applicationId", paramType = "query", value = "呼救id", required = true)
+    })
+    @GetMapping("/{emergencyId}")
+    public R getById(@PathVariable String emergencyId) {
+        return R.data(emergencyService.getUserEmergency(emergencyId));
+    }
 }

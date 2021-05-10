@@ -26,4 +26,11 @@ public interface IEmergencyService extends IService<Emergency> {
      * @return 分页数据
      */
     IPage<UserEmergencyVo> pageForQuery(PageDomain pageDomain, UserEmergencyVo params, String startDate, String endDate);
+
+    /**
+     * 获取呼救信息
+     * @param emergencyId 呼救id
+     * @return 呼救信息
+     */
+    UserEmergencyVo getUserEmergency(String emergencyId);
 }
