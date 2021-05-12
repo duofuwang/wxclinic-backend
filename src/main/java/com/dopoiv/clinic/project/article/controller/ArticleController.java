@@ -1,30 +1,26 @@
 package com.dopoiv.clinic.project.article.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dopoiv.clinic.common.tools.BaseController;
+import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.common.web.page.PageDomain;
+import com.dopoiv.clinic.project.article.entity.Article;
+import com.dopoiv.clinic.project.article.mapper.ArticleMapper;
 import com.dopoiv.clinic.project.article.service.IArticleService;
 import com.dopoiv.clinic.project.user.entity.User;
 import com.dopoiv.clinic.project.user.mapper.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.dopoiv.clinic.common.web.domain.R;
-import com.dopoiv.clinic.project.article.mapper.ArticleMapper;
-import com.dopoiv.clinic.project.article.entity.Article;
-
-import com.dopoiv.clinic.common.tools.BaseController;
 
 /**
  * <p>
@@ -100,8 +96,10 @@ public class ArticleController extends BaseController {
     @GetMapping("/{articleId}")
     public R getById(@PathVariable String articleId) {
         Article article = articleService.getById(articleId);
-        User user = userMapper.selectById(article.getUserId());
-        article.setAuthor(user.getNickname());
+        if (StrUtil.isNotEmpty(article.getUserId())) {
+            User user = userMapper.selectById(article.getUserId());
+            article.setAuthor(user.getNickname());
+        }
         return R.data(article);
     }
 }
