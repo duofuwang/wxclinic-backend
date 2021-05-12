@@ -73,16 +73,10 @@ public class AdminController extends BaseController {
         return R.data(adminService.pageForQuery(pageDomain, params));
     }
 
-    @ApiImplicitParams({
-    })
     @ApiOperation(value = "获取全部Admin信息")
-    @RequestMapping(method = RequestMethod.POST, value = "/getAllItems")
+    @GetMapping("/getAllItems")
     public R getAllItems() {
-        Admin params = new Admin();
-        QueryWrapper<Admin> wrapper = new QueryWrapper<>(params);
-        List<Admin> adminList = adminMapper.selectList(wrapper);
-
-        return R.data(adminList);
+        return R.data(adminMapper.selectAll());
     }
 
     @ApiOperation(value = "保存修改Admin信息")

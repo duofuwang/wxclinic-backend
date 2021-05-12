@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dopoiv.clinic.project.article.mapper.ArticleMapper">
+
+    <select id="selectPageForQuery" resultType="com.dopoiv.clinic.project.article.entity.Article">
+        SELECT ta.id,
+               tu.nickname AS author,
+               ta.user_id,
+               ta.title,
+               ta.summary,
+               ta.content,
+               ta.banner,
+               ta.`status`,
+               tat.type,
+               ta.create_time
+        FROM article AS ta
+                 LEFT JOIN `user` AS tu ON ta.user_id = tu.id
+                 LEFT JOIN `article_type` AS tat ON ta.type = tat.id
+        WHERE ta.deleted = 0
+        <if test="params.author != null and params.author != ''">
+            AND tu.nickname LIKE CONCAT('%', #{params.author}, '%')
+        </if>
+        <if test="params.title != null and params.title != ''">
+            AND ta.title LIKE CONCAT('%', #{params.title}, '%')
+        </if>
+        <if test="params.status != null">
+            AND ta.status = #{params.status}
+        </if>
+        <if test="params.type != null">
+            AND ta.type = #{params.type}
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND ta.create_time BETWEEN #{startDate} AND #{endDate}
+        </if>
+        ORDER BY ta.create_time DESC
+    </select>
+</mapper>

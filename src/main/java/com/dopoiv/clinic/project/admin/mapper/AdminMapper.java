@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.project.admin.entity.Admin;
 
+import java.util.List;
+
 /**
 *
 * @author wangduofu
@@ -19,5 +21,12 @@ public interface AdminMapper extends BaseMapper<Admin> {
      * @return 分页列表
      */
     IPage<Admin> getAdminList(Page<Admin> page, Admin params);
+
+    /**
+     * 获取所有管理员列表
+     *
+     * @return 管理员列表
+     */
+    List<Admin> selectAll();
 
 }

@@ -28,4 +28,18 @@
             AND tu.status = #{params.status}
         </if>
     </select>
+    <select id="selectAll" resultType="com.dopoiv.clinic.project.admin.entity.Admin">
+        SELECT ta.id,
+               ta.`password`,
+               tu.id AS user_id,
+               tu.avatar_url,
+               tu.nickname,
+               tu.real_name,
+               tu.phone_number,
+               tu.last_visit_time,
+               tu.status
+        FROM admin AS ta
+                 LEFT JOIN `user` AS tu ON tu.id = ta.user_id
+        WHERE tu.deleted = 0
+    </select>
 </mapper>
