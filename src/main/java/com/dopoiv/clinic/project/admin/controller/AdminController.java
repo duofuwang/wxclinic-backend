@@ -9,6 +9,7 @@ import com.dopoiv.clinic.common.utils.JwtUtil;
 import com.dopoiv.clinic.common.utils.SecurityUtil;
 import com.dopoiv.clinic.common.web.page.PageDomain;
 import com.dopoiv.clinic.project.admin.dto.LoginBody;
+import com.dopoiv.clinic.project.admin.dto.ResetPwd;
 import com.dopoiv.clinic.project.admin.service.IAdminService;
 import com.dopoiv.clinic.project.user.controller.UserController;
 import com.dopoiv.clinic.project.user.entity.User;
@@ -108,5 +109,21 @@ public class AdminController extends BaseController {
     @GetMapping("/isAdmin")
     public R isAdmin(String userId) {
         return R.data(adminService.count(Wrappers.<Admin>lambdaQuery().eq(Admin::getUserId, userId)) > 0);
+    }
+
+    @ApiOperation(value = "用户是否为管理员")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", paramType = "body", value = "用户 id", required = true),
+            @ApiImplicitParam(name = "oldPassword", paramType = "body", value = "旧密码", required = true),
+            @ApiImplicitParam(name = "newPassword", paramType = "body", value = "新密码", required = true)
+    })
+    @PutMapping("/resetPwd")
+    public R resetPwd(@RequestBody ResetPwd resetPwd) {
+        Admin admin = adminService.getOne(Wrappers.<Admin>lambdaQuery().eq(Admin::getUserId, resetPwd.getUserId()));
+        if (!admin.getPassword().equals(resetPwd.getOldPassword())) {
+            return R.error("旧密码输入错误");
+        }
+        admin.setPassword(resetPwd.getNewPassword());
+        return R.status(adminService.updateById(admin));
     }
 }

@@ -28,7 +28,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public IPage<User> pageForQuery(User user, PageDomain pageDomain) {
-
         return userMapper.selectPage(
                 new Page<>(pageDomain.getPageNum(), pageDomain.getPageSize()),
                 Wrappers.<User>lambdaQuery()

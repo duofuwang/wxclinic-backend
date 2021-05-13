@@ -46,6 +46,10 @@ public class Admin extends BaseEntity {
     private String realName;
 
     @TableField(exist = false)
+    @ApiModelProperty(value = "性别")
+    private Integer gender;
+
+    @TableField(exist = false)
     @ApiModelProperty(value = "用户绑定的手机号")
     private String phoneNumber;
 

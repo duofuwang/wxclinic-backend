@@ -9,6 +9,7 @@
         , tu.avatar_url
         , tu.nickname
         , tu.real_name
+        , tu.gender
         , tu.phone_number
         , tu.last_visit_time
         , tu.status
