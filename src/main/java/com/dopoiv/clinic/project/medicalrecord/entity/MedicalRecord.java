@@ -1,5 +1,6 @@
 package com.dopoiv.clinic.project.medicalrecord.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.dopoiv.clinic.common.tools.BaseEntity;
@@ -73,9 +74,11 @@ public class MedicalRecord extends BaseEntity {
     @ApiModelProperty(value = "更新时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updateTime;
 
-    @TableLogic
     @ApiModelProperty(value = "逻辑删除 1删除 0不删除")
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Integer deleted;
 }

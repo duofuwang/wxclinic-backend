@@ -49,7 +49,7 @@ public class MedicalRecordController extends BaseController {
     @GetMapping("/page")
     public R page(MedicalRecord params, String startDate, String endDate) {
         PageDomain pageDomain = startMybatisPlusPage();
-        return R.data(medicalRecordService.getPageForQuery(pageDomain, params, startDate,endDate));
+        return R.data(medicalRecordService.getPageForQuery(pageDomain, params, startDate, endDate));
     }
 
     @ApiImplicitParams({
