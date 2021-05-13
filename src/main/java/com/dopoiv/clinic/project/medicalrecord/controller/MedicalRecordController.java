@@ -2,6 +2,8 @@ package com.dopoiv.clinic.project.medicalrecord.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dopoiv.clinic.common.web.page.PageDomain;
+import com.dopoiv.clinic.project.medicalrecord.service.IMedicalRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +38,8 @@ public class MedicalRecordController extends BaseController {
     @Autowired
     private MedicalRecordMapper medicalRecordMapper;
 
-    Logger logger = LoggerFactory.getLogger(getClass());
+    @Autowired
+    private IMedicalRecordService medicalRecordService;
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", paramType = "query", value = "当前页码", required = true),
@@ -44,14 +47,9 @@ public class MedicalRecordController extends BaseController {
     })
     @ApiOperation(value = "分页获取MedicalRecord信息")
     @GetMapping("/page")
-    public R page(
-            Integer pageNum,
-            Integer pageSize) {
-        Page<MedicalRecord> page = new Page<>(pageNum, pageSize);
-        MedicalRecord params = new MedicalRecord();
-        QueryWrapper<MedicalRecord> wrapper = new QueryWrapper<>(params);
-
-        return R.data(medicalRecordMapper.selectPage(page, wrapper));
+    public R page(MedicalRecord params, String startDate, String endDate) {
+        PageDomain pageDomain = startMybatisPlusPage();
+        return R.data(medicalRecordService.getPageForQuery(pageDomain, params, startDate,endDate));
     }
 
     @ApiImplicitParams({
@@ -67,7 +65,7 @@ public class MedicalRecordController extends BaseController {
     }
 
     @ApiOperation(value = "保存修改MedicalRecord信息")
-    @RequestMapping(method = RequestMethod.POST, value = "/save")
+    @PutMapping("/save")
     public R save(@RequestBody MedicalRecord entity) {
         if (entity.getId() == null) {
             medicalRecordMapper.insert(entity);

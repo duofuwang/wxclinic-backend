@@ -2,4 +2,38 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dopoiv.clinic.project.medicalrecord.mapper.MedicalRecordMapper">
 
+    <select id="selectPageForQuery" resultType="com.dopoiv.clinic.project.medicalrecord.entity.MedicalRecord">
+        SELECT tmr.id,
+               tmr.user_id,
+               tmr.doctor_id,
+               tau.nickname                                                         AS doctor_name,
+               tmr.chief_complaint,
+               IFNULL(tmr.patient_name, tu.nickname)                                AS patient_name,
+               IFNULL(tmr.patient_age, TIMESTAMPDIFF(YEAR, tu.birthday, CURDATE())) AS patient_age,
+               tmr.patient_address,
+               tmr.medical_history,
+               tmr.doctor_diagnosis,
+               tmr.treatment_method,
+               tmr.prescription,
+               tmr.create_time,
+               tmr.update_time
+        FROM medical_record AS tmr
+                 LEFT JOIN `user` as tu ON tmr.user_id = tu.id
+                 LEFT JOIN admin as ta ON ta.user_id = tmr.doctor_id
+                 LEFT JOIN (SELECT `user`.nickname AS nickname, admin.user_id AS user_id
+                            FROM admin
+                                     LEFT JOIN `user` ON `user`.id = admin.user_id) AS tau
+                           ON tau.user_id = tmr.doctor_id
+        WHERE tmr.deleted = 0
+        <if test="params.patientName != null and params.patientName != ''">
+            AND IFNULL(tmr.patient_name, tu.nickname) LIKE CONCAT('%', #{params.patientName}, '%')
+        </if>
+        <if test="params.doctorName != null and params.doctorName != ''">
+            AND tau.nickname LIKE CONCAT('%', #{params.doctorName}, '%')
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND tmr.create_time BETWEEN #{startDate} AND #{endDate}
+        </if>
+        ORDER BY tmr.create_time DESC
+    </select>
 </mapper>
