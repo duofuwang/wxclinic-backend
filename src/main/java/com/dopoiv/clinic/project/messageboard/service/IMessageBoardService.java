@@ -1,8 +1,8 @@
-package com.dopoiv.clinic.project.medicalrecord.service;
+package com.dopoiv.clinic.project.messageboard.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.dopoiv.clinic.common.web.page.PageDomain;
-import com.dopoiv.clinic.project.medicalrecord.entity.MedicalRecord;
+import com.dopoiv.clinic.project.messageboard.entity.MessageBoard;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,12 +11,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author wangduofu
- * @since 2021-05-12
+ * @since 2021-05-14
  */
-public interface IMedicalRecordService extends IService<MedicalRecord> {
+public interface IMessageBoardService extends IService<MessageBoard> {
 
     /**
-     * 获取病历分页数据
+     * 获取留言板分页数据
      *
      * @param pageDomain 分页
      * @param params     查询参数
@@ -24,5 +24,5 @@ public interface IMedicalRecordService extends IService<MedicalRecord> {
      * @param endDate    结束时间
      * @return 分页数据
      */
-    IPage<MedicalRecord> getPageForQuery(PageDomain pageDomain, MedicalRecord params, String startDate, String endDate);
+    IPage<MessageBoard> getPageForQuery(PageDomain pageDomain, MessageBoard params, String startDate, String endDate);
 }

@@ -42,6 +42,10 @@ public class Admin extends BaseEntity {
     private String nickname;
 
     @TableField(exist = false)
+    @ApiModelProperty(value = "医生名称")
+    private String doctorName;
+
+    @TableField(exist = false)
     @ApiModelProperty(value = "用户真实姓名")
     private String realName;
 

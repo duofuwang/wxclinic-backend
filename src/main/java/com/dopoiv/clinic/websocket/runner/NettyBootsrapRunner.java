@@ -38,6 +38,7 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * 初始化Netty服务
+ *
  * @author wangduofu
  */
 @Component
@@ -86,14 +87,14 @@ public class NettyBootsrapRunner implements ApplicationRunner, ApplicationListen
                     pipeline.addLast(new ChannelInboundHandlerAdapter() {
                         @Override
                         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                            if(msg instanceof FullHttpRequest) {
+                            if (msg instanceof FullHttpRequest) {
                                 FullHttpRequest fullHttpRequest = (FullHttpRequest) msg;
                                 String uri = fullHttpRequest.uri();
                                 if (!uri.equals(path)) {
                                     // 访问的路径不是 websocket的端点地址，响应404
                                     ctx.channel().writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
                                             .addListener(ChannelFutureListener.CLOSE);
-                                    return ;
+                                    return;
                                 }
                             }
                             super.channelRead(ctx, msg);
@@ -110,7 +111,7 @@ public class NettyBootsrapRunner implements ApplicationRunner, ApplicationListen
             });
             Channel channel = serverBootstrap.bind().sync().channel();
             this.serverChannel = channel;
-            LOGGER.info("websocket 服务启动，ip={},port={}", this.ip, this.port);
+            LOGGER.info("Websocket server started, ip = {}, port = {}, path = {}", this.ip, this.port, this.path);
             channel.closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();

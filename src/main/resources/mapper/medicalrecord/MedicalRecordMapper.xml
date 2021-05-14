@@ -6,7 +6,7 @@
         SELECT tmr.id,
                tmr.user_id,
                tmr.doctor_id,
-               tau.nickname                                                         AS doctor_name,
+               IFNULL(tau.real_name, tau.nickname)                                  AS doctor_name,
                tmr.chief_complaint,
                IFNULL(tmr.patient_name, tu.nickname)                                AS patient_name,
                IFNULL(tmr.patient_age, TIMESTAMPDIFF(YEAR, tu.birthday, CURDATE())) AS patient_age,
@@ -20,7 +20,7 @@
         FROM medical_record AS tmr
                  LEFT JOIN `user` as tu ON tmr.user_id = tu.id
                  LEFT JOIN admin as ta ON ta.user_id = tmr.doctor_id
-                 LEFT JOIN (SELECT `user`.nickname AS nickname, admin.user_id AS user_id
+                 LEFT JOIN (SELECT `user`.nickname AS nickname, admin.user_id AS user_id, `user`.real_name AS real_name
                             FROM admin
                                      LEFT JOIN `user` ON `user`.id = admin.user_id) AS tau
                            ON tau.user_id = tmr.doctor_id

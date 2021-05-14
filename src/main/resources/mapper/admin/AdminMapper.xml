@@ -34,8 +34,7 @@
                ta.`password`,
                tu.id AS user_id,
                tu.avatar_url,
-               tu.nickname,
-               tu.real_name,
+               IFNULL(tu.real_name, tu.nickname) AS doctor_name,
                tu.phone_number,
                tu.last_visit_time,
                tu.status

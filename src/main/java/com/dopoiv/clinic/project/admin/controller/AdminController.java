@@ -1,49 +1,24 @@
 package com.dopoiv.clinic.project.admin.controller;
 
-import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dopoiv.clinic.common.constant.Constants;
-import com.dopoiv.clinic.common.utils.JwtUtil;
-import com.dopoiv.clinic.common.utils.SecurityUtil;
+import com.dopoiv.clinic.common.tools.BaseController;
+import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.common.web.page.PageDomain;
-import com.dopoiv.clinic.project.admin.dto.LoginBody;
 import com.dopoiv.clinic.project.admin.dto.ResetPwd;
+import com.dopoiv.clinic.project.admin.entity.Admin;
+import com.dopoiv.clinic.project.admin.mapper.AdminMapper;
 import com.dopoiv.clinic.project.admin.service.IAdminService;
-import com.dopoiv.clinic.project.user.controller.UserController;
-import com.dopoiv.clinic.project.user.entity.User;
-import com.dopoiv.clinic.project.user.mapper.UserMapper;
-import com.dopoiv.clinic.redis.RedisCache;
-import com.dopoiv.clinic.security.LoginUser;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
-
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.dopoiv.clinic.common.web.domain.R;
-import com.dopoiv.clinic.project.admin.mapper.AdminMapper;
-import com.dopoiv.clinic.project.admin.entity.Admin;
-
-import com.dopoiv.clinic.common.tools.BaseController;
-
-import javax.annotation.Resource;
 
 /**
  * <p>

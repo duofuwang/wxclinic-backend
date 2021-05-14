@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dopoiv.clinic.project.evaluate.mapper.EvaluateMapper">
+
+    <select id="selectPageForQuery" resultType="com.dopoiv.clinic.project.evaluate.entity.Evaluate">
+        SELECT te.id,
+        te.user_id,
+        te.rate,
+        te.reason,
+        te.create_time,
+        te.deleted,
+        tu.nickname,
+        tu.real_name
+        FROM evaluate AS te
+        LEFT JOIN `user` AS tu ON tu.id = te.user_id
+        WHERE te.deleted = 0
+        <if test="params.nickname != null and params.nickname != ''">
+            AND tu.nickname LIKE CONCAT('%', #{params.nickname}, '%')
+        </if>
+        <if test="params.realName != null and params.realName != ''">
+            AND tu.real_name LIKE CONCAT('%', #{params.realName}, '%')
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND te.create_time BETWEEN #{startDate} AND #{endDate}
+        </if>
+        ORDER BY te.create_time DESC
+    </select>
+</mapper>
