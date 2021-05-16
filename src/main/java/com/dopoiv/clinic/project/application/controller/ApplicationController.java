@@ -1,6 +1,5 @@
 package com.dopoiv.clinic.project.application.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -16,9 +15,8 @@ import com.dopoiv.clinic.project.application.mapper.ApplicationMapper;
 import com.dopoiv.clinic.project.application.service.IApplicationService;
 import com.dopoiv.clinic.project.application.vo.ReviewApplicationVo;
 import com.dopoiv.clinic.project.application.vo.UserApplicationVo;
-import com.dopoiv.clinic.project.order.entity.VisitOrder;
-import com.dopoiv.clinic.project.order.mapper.VisitOrderMapper;
-import com.dopoiv.clinic.project.user.entity.User;
+import com.dopoiv.clinic.project.order.entity.Order;
+import com.dopoiv.clinic.project.order.mapper.OrderMapper;
 import com.dopoiv.clinic.project.user.mapper.UserMapper;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -50,7 +48,7 @@ public class ApplicationController extends BaseController {
     private ApplicationMapper applicationMapper;
 
     @Autowired
-    private VisitOrderMapper visitOrderMapper;
+    private OrderMapper orderMapper;
 
     @Autowired
     private IApplicationService applicationService;
@@ -157,14 +155,14 @@ public class ApplicationController extends BaseController {
         applicationMapper.insert(entity);
 
         // 同时生成出诊订单
-        VisitOrder visitOrder = new VisitOrder();
-        visitOrder.setVisitId(entity.getId());
-        visitOrder.setFee(body.get("fee"));
-        visitOrder.setPaid(0);
-        visitOrder.setCreateTime(entity.getCreateTime());
-        visitOrder.setExpirationTime(LocalDateTimeUtil.offset(entity.getCreateTime(), 30, ChronoUnit.MINUTES));
-        visitOrderMapper.insert(visitOrder);
-        return R.data(visitOrder);
+        Order order = new Order();
+        order.setApplicationId(entity.getId());
+        order.setFee(body.get("fee"));
+        order.setPaid(0);
+        order.setCreateTime(entity.getCreateTime());
+        order.setExpirationTime(LocalDateTimeUtil.offset(entity.getCreateTime(), 30, ChronoUnit.MINUTES));
+        orderMapper.insert(order);
+        return R.data(order);
     }
 
     /**
@@ -186,17 +184,18 @@ public class ApplicationController extends BaseController {
     })
     @RequestMapping(method = RequestMethod.POST, value = "/getApplicationList")
     public R getApplicationList(String userId) {
-        QueryWrapper<Application> applicationQueryWrapper = new QueryWrapper<>();
-        applicationQueryWrapper
-                .eq("user_id", userId)
-                .orderByDesc("create_time");
-        List<Application> applicationList = applicationMapper.selectList(applicationQueryWrapper);
+        List<Application> applicationList = applicationMapper.selectList(
+                Wrappers.<Application>lambdaQuery()
+                        .eq(Application::getUserId, userId)
+                        .orderByDesc(Application::getCreateTime)
+        );
         for (Application application : applicationList) {
             if (2 == application.getType()) {
-                QueryWrapper<VisitOrder> visitOrderQueryWrapper = new QueryWrapper<>();
-                visitOrderQueryWrapper.eq("visit_id", application.getId());
-                VisitOrder visitOrder = visitOrderMapper.selectOne(visitOrderQueryWrapper);
-                application.setEtc(visitOrder);
+                Order order = orderMapper.selectOne(
+                        Wrappers.<Order>lambdaQuery()
+                                .eq(Order::getApplicationId, application.getId())
+                );
+                application.setEtc(order);
             }
         }
         return R.data(applicationList);

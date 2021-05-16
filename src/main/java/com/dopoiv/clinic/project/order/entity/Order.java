@@ -1,5 +1,6 @@
 package com.dopoiv.clinic.project.order.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.dopoiv.clinic.common.tools.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -18,13 +19,14 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-@ApiModel(value = "VisitOrder对象", description = "")
-public class VisitOrder extends BaseEntity {
+@ApiModel(value = "Order对象", description = "")
+@TableName("tb_order")
+public class Order extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "出诊id")
-    private String visitId;
+    private String applicationId;
 
     @ApiModelProperty(value = "费用")
     private String fee;

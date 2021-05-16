@@ -43,6 +43,7 @@ public class Suggestion extends BaseEntity {
 
     @ApiModelProperty(value = "逻辑删除")
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Integer deleted;
 
     @ApiModelProperty(value = "用户昵称")

@@ -36,7 +36,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                         .eq(Message::getFromId, friendId)
                         .eq(Message::getToId, userId)
                         .orderByAsc(Message::getCreateTime)
-                        .last(ObjectUtil.isNotNull(num), "LIMIT" + num)
+                        .last(ObjectUtil.isNotNull(num), "LIMIT " + num)
         );
     }
 }

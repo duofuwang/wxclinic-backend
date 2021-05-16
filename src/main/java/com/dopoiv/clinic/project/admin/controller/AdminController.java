@@ -86,7 +86,7 @@ public class AdminController extends BaseController {
         return R.data(adminService.count(Wrappers.<Admin>lambdaQuery().eq(Admin::getUserId, userId)) > 0);
     }
 
-    @ApiOperation(value = "用户是否为管理员")
+    @ApiOperation(value = "重置密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", paramType = "body", value = "用户 id", required = true),
             @ApiImplicitParam(name = "oldPassword", paramType = "body", value = "旧密码", required = true),

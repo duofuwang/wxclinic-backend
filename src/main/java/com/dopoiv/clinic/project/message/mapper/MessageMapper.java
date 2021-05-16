@@ -3,7 +3,6 @@ package com.dopoiv.clinic.project.message.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dopoiv.clinic.project.message.dto.ContactDTO;
 import com.dopoiv.clinic.project.message.entity.Message;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -17,9 +16,10 @@ public interface MessageMapper extends BaseMapper<Message> {
 
     /**
      * 根据用户 id 获取最近的 num 条信息
-     * @param userId 用户 id
+     *
+     * @param userId   用户 id
      * @param friendId 联系人 id
-     * @param num 要获取的数量
+     * @param num      要获取的数量
      * @return List 消息列表
      */
     @Select("SELECT * FROM message\n" +
@@ -30,6 +30,7 @@ public interface MessageMapper extends BaseMapper<Message> {
 
     /**
      * 获取用户未读消息
+     *
      * @param userId 用户 id
      * @return List 未读消息列表
      */
@@ -42,10 +43,11 @@ public interface MessageMapper extends BaseMapper<Message> {
 
     /**
      * 获取最近会话列表和最后一条聊天记录
+     *
      * @param userId 用户 id
      * @return List 会话列表
      */
-    @Select("SELECT count(sign = 0 or null) AS unread_num,friend_id,uni_table.content,uni_table.create_time,type,nick_name,avatar_url\n" +
+    @Select("SELECT count(sign = 0 or null) AS unread_num,friend_id,uni_table.content,uni_table.create_time,type,nickname,avatar_url\n" +
             "FROM (\n" +
             "SELECT to_id as friend_id,content,1 as sign,create_time,type\n" +
             "FROM message WHERE (from_id = #{userId}) AND (to_id <> #{userId})\n" +

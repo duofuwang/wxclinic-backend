@@ -1,15 +1,14 @@
 package com.dopoiv.clinic.project.config.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +21,6 @@ import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.project.config.mapper.ConfigMapper;
 import com.dopoiv.clinic.project.config.entity.Config;
 
-import org.springframework.web.bind.annotation.RestController;
 import com.dopoiv.clinic.common.tools.BaseController;
 
 /**
@@ -34,7 +32,7 @@ import com.dopoiv.clinic.common.tools.BaseController;
  * @since 2021-05-14
  */
 @RestController
-@RequestMapping("/config/config")
+@RequestMapping("/config")
 public class ConfigController extends BaseController {
     @Autowired
     private ConfigMapper configMapper;
@@ -70,7 +68,7 @@ public class ConfigController extends BaseController {
     }
 
     @ApiOperation(value = "保存修改Config信息")
-    @RequestMapping(method = RequestMethod.POST, value = "/save")
+    @PutMapping("/save")
     public R save(@RequestBody Config entity) {
         if (entity.getId() == null) {
             configMapper.insert(entity);
@@ -89,5 +87,11 @@ public class ConfigController extends BaseController {
         List<String> deleteIds = new ArrayList<>(Arrays.asList(ids.split(",")));
         configMapper.deleteBatchIds(deleteIds);
         return R.success();
+    }
+
+    @ApiOperation(value = "获取诊所配置")
+    @GetMapping
+    public R getConfig() {
+        return R.data(configMapper.selectOne(Wrappers.<Config>lambdaQuery().last("LIMIT 1")));
     }
 }

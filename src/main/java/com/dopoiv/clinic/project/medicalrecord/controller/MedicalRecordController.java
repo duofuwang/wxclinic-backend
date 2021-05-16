@@ -2,7 +2,9 @@ package com.dopoiv.clinic.project.medicalrecord.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dopoiv.clinic.common.tools.BaseController;
+import com.dopoiv.clinic.common.utils.SecurityUtil;
 import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.common.web.page.PageDomain;
 import com.dopoiv.clinic.project.medicalrecord.entity.MedicalRecord;
@@ -95,5 +97,17 @@ public class MedicalRecordController extends BaseController {
         User doctor = userMapper.selectById(medicalRecord.getDoctorId());
         medicalRecord.setDoctorName(StrUtil.isNotEmpty(doctor.getRealName()) ? doctor.getRealName() : doctor.getNickname());
         return R.data(medicalRecord);
+    }
+
+    @ApiOperation(value = "获取用户病历")
+    @GetMapping("/getUserMedicalRecord")
+    public R getUserMedicalRecord() {
+        User user = SecurityUtil.getUserInfo();
+        List<MedicalRecord> medicalRecordList = medicalRecordService.list(
+                Wrappers.<MedicalRecord>lambdaQuery()
+                        .eq(MedicalRecord::getUserId, user.getId())
+                        .orderByDesc(MedicalRecord::getCreateTime)
+        );
+        return R.data(medicalRecordList);
     }
 }

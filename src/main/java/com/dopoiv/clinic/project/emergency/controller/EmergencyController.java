@@ -66,7 +66,11 @@ public class EmergencyController extends BaseController {
     public R save(@RequestBody Emergency entity) {
 
         if (entity.getId() == null) {
-            emergencyMapper.update(new Emergency(), new UpdateWrapper<Emergency>().eq("user_id", entity.getUserId()).set("is_calling", 0));
+            emergencyService.update(
+                    Wrappers.<Emergency>lambdaUpdate()
+                            .eq(Emergency::getUserId, entity.getUserId())
+                            .set(Emergency::getStatus, 0)
+            );
             entity.setStatus(1);
             emergencyMapper.insert(entity);
         } else {
@@ -92,7 +96,11 @@ public class EmergencyController extends BaseController {
     })
     @RequestMapping(method = RequestMethod.POST, value = "/getCurrentCall")
     public R<Emergency> getCurrentCall(String userId) {
-        return R.data(emergencyMapper.selectOne(new QueryWrapper<Emergency>().eq("user_id", userId).eq("is_calling", 1)));
+        return R.data(emergencyService.getOne(
+                Wrappers.<Emergency>lambdaQuery()
+                        .eq(Emergency::getUserId, userId)
+                        .eq(Emergency::getStatus, 1)
+        ));
     }
 
     @ApiOperation(value = "停止正在进行的呼救信息")
@@ -101,10 +109,12 @@ public class EmergencyController extends BaseController {
     })
     @RequestMapping(method = RequestMethod.POST, value = "/stopEmergencyCall")
     public R stopEmergencyCall(String userId) {
-        Emergency emergency = new Emergency();
-        emergency.setStatus(2);
-        emergencyMapper.update(emergency, new UpdateWrapper<Emergency>().eq("user_id", userId).eq("is_calling", 1));
-        return R.success();
+        return R.status(emergencyService.update(
+                Wrappers.<Emergency>lambdaUpdate()
+                        .eq(Emergency::getUserId, userId)
+                        .eq(Emergency::getStatus, 1)
+                        .set(Emergency::getStatus, 0)
+        ));
     }
 
     @ApiOperation(value = "结束呼救")

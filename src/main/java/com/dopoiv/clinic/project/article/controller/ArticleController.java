@@ -2,6 +2,7 @@ package com.dopoiv.clinic.project.article.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.common.web.page.PageDomain;
@@ -100,6 +101,18 @@ public class ArticleController extends BaseController {
             User user = userMapper.selectById(article.getUserId());
             article.setAuthor(user.getNickname());
         }
+        return R.data(article);
+    }
+
+    @ApiOperation(value = "获取最新辟谣文章")
+    @GetMapping("/newRumor")
+    public R getNewRumor() {
+        Article article = articleService.getOne(
+                Wrappers.<Article>lambdaQuery()
+                        .eq(Article::getType, 3)
+                        .orderByDesc(Article::getCreateTime)
+                        .last("LIMIT 1")
+        );
         return R.data(article);
     }
 }

@@ -7,8 +7,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.web.domain.R;
-import com.dopoiv.clinic.project.order.entity.VisitOrder;
-import com.dopoiv.clinic.project.order.mapper.VisitOrderMapper;
+import com.dopoiv.clinic.project.order.entity.Order;
+import com.dopoiv.clinic.project.order.mapper.OrderMapper;
 import com.dopoiv.clinic.project.visit.entity.Visit;
 import com.dopoiv.clinic.project.visit.mapper.VisitMapper;
 import io.swagger.annotations.ApiImplicitParam;
@@ -44,7 +44,7 @@ public class VisitController extends BaseController {
     private VisitMapper visitMapper;
 
     @Autowired
-    VisitOrderMapper visitOrderMapper;
+    OrderMapper orderMapper;
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -93,14 +93,14 @@ public class VisitController extends BaseController {
             visitMapper.insert(entity);
 
             // 同时生成出诊订单
-            VisitOrder visitOrder = new VisitOrder();
-            visitOrder.setVisitId(entity.getId());
-            visitOrder.setFee(body.get("fee"));
-            visitOrder.setPaid(0);
-            visitOrder.setCreateTime(entity.getCreateTime());
-            visitOrder.setExpirationTime(LocalDateTimeUtil.offset(entity.getCreateTime(), 30, ChronoUnit.MINUTES));
-            visitOrderMapper.insert(visitOrder);
-            return R.data(visitOrder);
+            Order order = new Order();
+            order.setApplicationId(entity.getId());
+            order.setFee(body.get("fee"));
+            order.setPaid(0);
+            order.setCreateTime(entity.getCreateTime());
+            order.setExpirationTime(LocalDateTimeUtil.offset(entity.getCreateTime(), 30, ChronoUnit.MINUTES));
+            orderMapper.insert(order);
+            return R.data(order);
         } else {
             visitMapper.updateById(entity);
         }

@@ -37,6 +37,7 @@ public class MessageBoard extends BaseEntity {
 
     @ApiModelProperty(value = "逻辑删除")
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Integer deleted;
 
     @ApiModelProperty(value = "留言时间")

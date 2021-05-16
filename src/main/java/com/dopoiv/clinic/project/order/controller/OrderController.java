@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.web.domain.R;
-import com.dopoiv.clinic.project.order.entity.VisitOrder;
-import com.dopoiv.clinic.project.order.mapper.VisitOrderMapper;
+import com.dopoiv.clinic.project.order.entity.Order;
+import com.dopoiv.clinic.project.order.mapper.OrderMapper;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -32,9 +32,9 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/order/visit-order")
-public class VisitOrderController extends BaseController {
+public class OrderController extends BaseController {
     @Autowired
-    private VisitOrderMapper visitOrderMapper;
+    private OrderMapper orderMapper;
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -47,11 +47,11 @@ public class VisitOrderController extends BaseController {
     public R page(
             Integer pageNum,
             Integer pageSize) {
-        Page<VisitOrder> page = new Page<>(pageNum, pageSize);
-        VisitOrder params = new VisitOrder();
-        QueryWrapper<VisitOrder> wrapper = new QueryWrapper<>(params);
+        Page<Order> page = new Page<>(pageNum, pageSize);
+        Order params = new Order();
+        QueryWrapper<Order> wrapper = new QueryWrapper<>(params);
 
-        return R.data(visitOrderMapper.selectPage(page, wrapper));
+        return R.data(orderMapper.selectPage(page, wrapper));
     }
 
     @ApiImplicitParams({
@@ -59,20 +59,20 @@ public class VisitOrderController extends BaseController {
     @ApiOperation(value = "获取全部VisitOrder信息")
     @RequestMapping(method = RequestMethod.POST, value = "/getAllItems")
     public R getAllItems() {
-        VisitOrder params = new VisitOrder();
-        QueryWrapper<VisitOrder> wrapper = new QueryWrapper<>(params);
-        List<VisitOrder> visitOrderList = visitOrderMapper.selectList(wrapper);
+        Order params = new Order();
+        QueryWrapper<Order> wrapper = new QueryWrapper<>(params);
+        List<Order> orderList = orderMapper.selectList(wrapper);
 
-        return R.data(visitOrderList);
+        return R.data(orderList);
     }
 
     @ApiOperation(value = "保存修改VisitOrder信息")
     @RequestMapping(method = RequestMethod.POST, value = "/save")
-    public R save(@RequestBody VisitOrder entity) {
+    public R save(@RequestBody Order entity) {
         if (entity.getId() == null) {
-            visitOrderMapper.insert(entity);
+            orderMapper.insert(entity);
         } else {
-            visitOrderMapper.updateById(entity);
+            orderMapper.updateById(entity);
         }
         return R.success();
     }
@@ -84,7 +84,7 @@ public class VisitOrderController extends BaseController {
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete")
     public R delete(String ids) {
         List<String> deleteIds = new ArrayList<>(Arrays.asList(ids.split(",")));
-        visitOrderMapper.deleteBatchIds(deleteIds);
+        orderMapper.deleteBatchIds(deleteIds);
         return R.success();
     }
 
@@ -95,9 +95,9 @@ public class VisitOrderController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "/payment")
     public R payment(String id) {
 
-        UpdateWrapper<VisitOrder> visitOrderUpdateWrapper = new UpdateWrapper<>();
-        visitOrderUpdateWrapper.eq("id", id).set("paid", 1);
-        visitOrderMapper.update(null, visitOrderUpdateWrapper);
+        UpdateWrapper<Order> orderUpdateWrapper = new UpdateWrapper<>();
+        orderUpdateWrapper.eq("id", id).set("paid", 1);
+        orderMapper.update(null, orderUpdateWrapper);
 
         return R.success();
     }

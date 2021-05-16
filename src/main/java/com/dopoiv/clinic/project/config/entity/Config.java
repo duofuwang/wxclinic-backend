@@ -1,5 +1,8 @@
 package com.dopoiv.clinic.project.config.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.dopoiv.clinic.common.tools.BaseEntity;
 
 import io.swagger.annotations.ApiModel;
@@ -35,11 +38,15 @@ public class Config extends BaseEntity {
     @ApiModelProperty(value = "申请费用")
     private String applicationFee;
 
+    @ApiModelProperty(value = "关于")
+    private String about;
+
     @ApiModelProperty(value = "启用")
     private Integer enabled;
 
     @ApiModelProperty(value = "逻辑删除")
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Integer deleted;
-
 
 }
