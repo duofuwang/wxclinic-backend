@@ -102,12 +102,13 @@ public class MedicalRecordController extends BaseController {
     @ApiOperation(value = "获取用户病历")
     @GetMapping("/getUserMedicalRecord")
     public R getUserMedicalRecord() {
-        User user = SecurityUtil.getUserInfo();
-        List<MedicalRecord> medicalRecordList = medicalRecordService.list(
-                Wrappers.<MedicalRecord>lambdaQuery()
-                        .eq(MedicalRecord::getUserId, user.getId())
-                        .orderByDesc(MedicalRecord::getCreateTime)
-        );
-        return R.data(medicalRecordList);
+//        User user = SecurityUtil.getUserInfo();
+//        List<MedicalRecord> medicalRecordList = medicalRecordService.list(
+//                Wrappers.<MedicalRecord>lambdaQuery()
+//                        .eq(MedicalRecord::getUserId, user.getId())
+//                        .orderByDesc(MedicalRecord::getCreateTime)
+//        );
+        PageDomain pageDomain = startMybatisPlusPage();
+        return R.data(medicalRecordService.getUserMedicalRecordPage(pageDomain));
     }
 }

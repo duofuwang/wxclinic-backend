@@ -25,4 +25,7 @@ public interface IMedicalRecordService extends IService<MedicalRecord> {
      * @return 分页数据
      */
     IPage<MedicalRecord> getPageForQuery(PageDomain pageDomain, MedicalRecord params, String startDate, String endDate);
+
+    IPage<MedicalRecord> getUserMedicalRecordPage(PageDomain pageDomain);
+
 }

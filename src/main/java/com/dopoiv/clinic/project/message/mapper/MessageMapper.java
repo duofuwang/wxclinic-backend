@@ -34,11 +34,6 @@ public interface MessageMapper extends BaseMapper<Message> {
      * @param userId 用户 id
      * @return List 未读消息列表
      */
-    @Select("<script>" +
-            "SELECT * from message\n" +
-            "WHERE message.to_id = #{userId}\n" +
-            "AND message.sign = 0" +
-            "</script>")
     List<Message> getUnreadMessage(@Param("userId") String userId);
 
     /**
@@ -47,16 +42,6 @@ public interface MessageMapper extends BaseMapper<Message> {
      * @param userId 用户 id
      * @return List 会话列表
      */
-    @Select("SELECT count(sign = 0 or null) AS unread_num,friend_id,uni_table.content,uni_table.create_time,type,nickname,avatar_url\n" +
-            "FROM (\n" +
-            "SELECT to_id as friend_id,content,1 as sign,create_time,type\n" +
-            "FROM message WHERE (from_id = #{userId}) AND (to_id <> #{userId})\n" +
-            "UNION\n" +
-            "SELECT from_id as friend_id,content,sign,create_time,type\n" +
-            "FROM message WHERE (from_id <> #{userId}) AND (to_id = #{userId})\n" +
-            "ORDER BY create_time desc\n" +
-            ") AS uni_table\n" +
-            "INNER JOIN user u on friend_id = u.id GROUP BY friend_id ORDER BY create_time DESC")
     List<ContactDTO> getContactList(@Param("userId") String userId);
 
 }

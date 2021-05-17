@@ -2,4 +2,67 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dopoiv.clinic.project.message.mapper.MessageMapper">
 
+    <select id="getContactList" resultType="com.dopoiv.clinic.project.message.dto.ContactDTO"
+            parameterType="java.lang.String">
+        SELECT ta.user_id               AS friend_id
+             , tu.nickname              AS nickname
+             , tu.real_name             AS real_name
+             , tu.avatar_url
+             , IFNULL(tc.unread_num, 0) AS unread_num
+             , tc.content
+             , tc.type
+             , tc.create_time
+        FROM admin AS ta
+                 LEFT JOIN `user` tu ON ta.user_id = tu.id
+                 LEFT JOIN (
+            SELECT COUNT(sign = 0
+                OR NULL) AS unread_num
+                 , friend_id
+                 , uni_table.content
+                 , uni_table.create_time
+                 , type
+                 , nickname
+                 , avatar_url
+            FROM (
+                     SELECT tm.id
+                          , to_id AS friend_id
+                          , content
+                          , 1     AS sign
+                          , create_time
+                          , type
+                     FROM message AS tm
+                     WHERE tm.from_id = #{userId}
+                       AND tm.to_id != #{userId}
+                     UNION
+                     SELECT tm.id
+                          , from_id AS friend_id
+                          , content
+                          , sign
+                          , create_time
+                          , type
+                     FROM message AS tm
+                     WHERE tm.from_id != #{userId}
+                       AND tm.to_id = #{userId}
+                     ORDER BY create_time DESC
+                 ) AS uni_table
+                     INNER JOIN `user` AS tu ON uni_table.friend_id = tu.id
+            GROUP BY uni_table.friend_id
+        ) AS tc ON tc.friend_id = ta.user_id
+        WHERE ta.user_id != #{userId}
+        ORDER BY tc.create_time DESC
+    </select>
+    <select id="getUnreadMessage" resultType="com.dopoiv.clinic.project.message.entity.Message"
+            parameterType="java.lang.String">
+        SELECT
+            tm.id,
+            tm.from_id,
+            tm.to_id,
+            tm.type,
+            tm.content,
+            tm.create_time,
+            tm.sign
+        from message AS tm
+        WHERE tm.to_id = #{userId}
+          AND tm.sign = 0
+    </select>
 </mapper>

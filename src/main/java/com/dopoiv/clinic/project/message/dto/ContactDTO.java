@@ -31,6 +31,9 @@ public class ContactDTO extends BaseEntity {
     @ApiModelProperty(value = "昵称")
     private String nickname;
 
+    @ApiModelProperty(value = "姓名")
+    private String realName;
+
     @ApiModelProperty(value = "头像")
     private String avatarUrl;
 
