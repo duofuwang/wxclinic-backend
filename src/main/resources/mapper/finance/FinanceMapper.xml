@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dopoiv.clinic.project.finance.mapper.FinanceMapper">
+    <select id="selectPageByDay" resultType="com.dopoiv.clinic.project.finance.entity.Finance">
+        SELECT
+        DATE_FORMAT(tor.create_time, '%Y-%m-%d') AS datetime,
+        SUM(tor.fee) AS total_fee,
+        SUM(IF(tor.paid = 1,tor.fee,0)) AS actual_received
+        FROM tb_order AS tor
+        LEFT JOIN application AS tap ON tap.id = tor.application_id
+        LEFT JOIN `user` AS tu ON tu.id = tap.user_id
+        WHERE tor.deleted = 0
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND tor.create_time BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY datetime
+        ORDER BY datetime DESC
+    </select>
+    <select id="selectPageByWeek" resultType="com.dopoiv.clinic.project.finance.entity.Finance">
+        SELECT
+        DATE_FORMAT(tor.create_time, '%Y年第%U周') AS datetime,
+        SUM(tor.fee) AS total_fee,
+        SUM(IF(tor.paid = 1,tor.fee,0)) AS actual_received
+        FROM tb_order AS tor
+        LEFT JOIN application AS tap ON tap.id = tor.application_id
+        LEFT JOIN `user` AS tu ON tu.id = tap.user_id
+        WHERE tor.deleted = 0
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND tor.create_time BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY datetime
+        ORDER BY datetime DESC
+    </select>
+    <select id="selectPageByMonth" resultType="com.dopoiv.clinic.project.finance.entity.Finance">
+        SELECT
+        DATE_FORMAT(tor.create_time, '%Y年%m月') AS datetime,
+        SUM(tor.fee) AS total_fee,
+        SUM(IF(tor.paid = 1,tor.fee,0)) AS actual_received
+        FROM tb_order AS tor
+        LEFT JOIN application AS tap ON tap.id = tor.application_id
+        LEFT JOIN `user` AS tu ON tu.id = tap.user_id
+        WHERE tor.deleted = 0
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND tor.create_time BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY datetime
+        ORDER BY datetime DESC
+    </select>
+    <select id="selectPageByYear" resultType="com.dopoiv.clinic.project.finance.entity.Finance">
+        SELECT
+        DATE_FORMAT(tor.create_time, '%Y年') AS datetime,
+        SUM(tor.fee) AS total_fee,
+        SUM(IF(tor.paid = 1,tor.fee,0)) AS actual_received
+        FROM tb_order AS tor
+        LEFT JOIN application AS tap ON tap.id = tor.application_id
+        LEFT JOIN `user` AS tu ON tu.id = tap.user_id
+        WHERE tor.deleted = 0
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND tor.create_time BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY datetime
+        ORDER BY datetime DESC
+    </select>
+</mapper>

@@ -11,5 +11,14 @@ import com.dopoiv.clinic.project.order.entity.Order;
  */
 public interface OrderMapper extends BaseMapper<Order> {
 
+    /**
+     * 分页查询订单
+     *
+     * @param page      分页
+     * @param params    参数个数
+     * @param startDate 开始日期
+     * @param endDate   结束日期
+     * @return {@link IPage<Order>}
+     */
     IPage<Order> selectPageForQuery(Page<Order> page, Order params, String startDate, String endDate);
 }
