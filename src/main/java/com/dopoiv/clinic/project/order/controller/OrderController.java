@@ -1,22 +1,27 @@
 package com.dopoiv.clinic.project.order.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.web.domain.R;
+import com.dopoiv.clinic.common.web.page.PageDomain;
+import com.dopoiv.clinic.project.application.entity.Application;
+import com.dopoiv.clinic.project.application.service.IApplicationService;
 import com.dopoiv.clinic.project.order.entity.Order;
 import com.dopoiv.clinic.project.order.mapper.OrderMapper;
+import com.dopoiv.clinic.project.order.service.IOrderService;
+import com.dopoiv.clinic.project.user.entity.User;
+import com.dopoiv.clinic.project.user.service.IUserService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,10 +36,19 @@ import java.util.List;
  * @since 2021-04-24
  */
 @RestController
-@RequestMapping("/order/visit-order")
+@RequestMapping("/order")
 public class OrderController extends BaseController {
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private IOrderService orderService;
+
+    @Autowired
+    private IApplicationService applicationService;
+
+    @Autowired
+    private IUserService userService;
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -42,21 +56,16 @@ public class OrderController extends BaseController {
             @ApiImplicitParam(name = "pageNum", paramType = "query", value = "当前页码", required = true),
             @ApiImplicitParam(name = "pageSize", paramType = "query", value = "每页显示记录数", required = true)
     })
-    @ApiOperation(value = "分页获取VisitOrder信息")
-    @RequestMapping(method = RequestMethod.POST, value = "/page")
-    public R page(
-            Integer pageNum,
-            Integer pageSize) {
-        Page<Order> page = new Page<>(pageNum, pageSize);
-        Order params = new Order();
-        QueryWrapper<Order> wrapper = new QueryWrapper<>(params);
-
-        return R.data(orderMapper.selectPage(page, wrapper));
+    @ApiOperation(value = "分页获取 Order 信息")
+    @GetMapping("/page")
+    public R page(Order params, String startDate, String endDate) {
+        PageDomain pageDomain = startMybatisPlusPage();
+        return R.data(orderService.getPageForQuery(pageDomain, params, startDate, endDate));
     }
 
     @ApiImplicitParams({
     })
-    @ApiOperation(value = "获取全部VisitOrder信息")
+    @ApiOperation(value = "获取全部 Order 信息")
     @RequestMapping(method = RequestMethod.POST, value = "/getAllItems")
     public R getAllItems() {
         Order params = new Order();
@@ -66,7 +75,7 @@ public class OrderController extends BaseController {
         return R.data(orderList);
     }
 
-    @ApiOperation(value = "保存修改VisitOrder信息")
+    @ApiOperation(value = "保存修改 Order 信息")
     @RequestMapping(method = RequestMethod.POST, value = "/save")
     public R save(@RequestBody Order entity) {
         if (entity.getId() == null) {
@@ -77,7 +86,7 @@ public class OrderController extends BaseController {
         return R.success();
     }
 
-    @ApiOperation(value = "按id删除VisitOrder，可以传入多个id用，隔开")
+    @ApiOperation(value = "按id删除 Order ，可以传入多个id用，隔开")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ids", paramType = "query", value = "传入的id串，用，隔开", required = true)
     })
@@ -94,11 +103,27 @@ public class OrderController extends BaseController {
     })
     @RequestMapping(method = RequestMethod.POST, value = "/payment")
     public R payment(String id) {
+        return R.status(orderService.update(
+                Wrappers.<Order>lambdaUpdate().eq(Order::getId, id).set(Order::getPaid, 1)
+        ));
+    }
 
-        UpdateWrapper<Order> orderUpdateWrapper = new UpdateWrapper<>();
-        orderUpdateWrapper.eq("id", id).set("paid", 1);
-        orderMapper.update(null, orderUpdateWrapper);
-
-        return R.success();
+    @ApiOperation(value = "按id获取订单信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", paramType = "String", value = "传入的id", required = true)
+    })
+    @GetMapping("/{id}")
+    public R getById(@PathVariable String id) {
+        Order order = orderService.getById(id);
+        Application application = applicationService.getById(order.getApplicationId());
+        if (ObjectUtil.isNotNull(application)) {
+            User user = userService.getById(application.getUserId());
+            if (ObjectUtil.isNotNull(user)) {
+                order.setNickname(user.getNickname())
+                        .setRealName(user.getRealName())
+                        .setUserId(user.getId());
+            }
+        }
+        return R.data(order);
     }
 }

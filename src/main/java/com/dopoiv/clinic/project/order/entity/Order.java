@@ -1,5 +1,8 @@
 package com.dopoiv.clinic.project.order.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.dopoiv.clinic.common.tools.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -44,5 +47,21 @@ public class Order extends BaseEntity {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
+    @ApiModelProperty(value = "逻辑删除")
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
+    private Integer deleted;
+
+    @ApiModelProperty(value = "用户id")
+    @TableField(exist = false)
+    private String userId;
+
+    @ApiModelProperty(value = "昵称")
+    @TableField(exist = false)
+    private String nickname;
+
+    @ApiModelProperty(value = "姓名")
+    @TableField(exist = false)
+    private String realName;
 
 }

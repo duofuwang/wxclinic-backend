@@ -1,5 +1,7 @@
 package com.dopoiv.clinic.project.user.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.dopoiv.clinic.common.tools.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -104,5 +106,6 @@ public class User extends BaseEntity {
 
     @TableLogic
     @ApiModelProperty(value = "逻辑删除 1删除 0不删除")
+    @TableField(fill = FieldFill.INSERT)
     private Integer deleted;
 }

@@ -2,4 +2,34 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dopoiv.clinic.project.order.mapper.OrderMapper">
 
+    <select id="selectPageForQuery" resultType="com.dopoiv.clinic.project.order.entity.Order">
+        SELECT
+            tor.id,
+            tu.nickname,
+            tu.real_name,
+            tor.fee,
+            tor.paid,
+            tor.create_time,
+            tor.expiration_time
+        FROM tb_order AS tor
+                 LEFT JOIN application AS tap ON tap.id = tor.application_id
+                 LEFT JOIN `user` AS tu ON tu.id = tap.user_id
+        WHERE tor.deleted = 0
+        <if test="params.userId != null and params.userId != ''">
+            AND tu.id = #{params.userId}
+        </if>
+        <if test="params.nickname != null and params.nickname != ''">
+            AND tu.nickname LIKE CONCAT('%', #{params.nickname}, '%')
+        </if>
+        <if test="params.realName != null and params.realName != ''">
+            AND tu.real_name LIKE CONCAT('%', #{params.realName}, '%')
+        </if>
+        <if test="params.paid != null">
+            AND tor.paid = #{params.paid}
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND tor.create_time BETWEEN #{startDate} AND #{endDate}
+        </if>
+        ORDER BY tor.create_time DESC
+    </select>
 </mapper>
