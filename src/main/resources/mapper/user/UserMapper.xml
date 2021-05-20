@@ -2,4 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dopoiv.clinic.project.user.mapper.UserMapper">
 
+    <select id="selectNewVisitStatistics" resultType="com.dopoiv.clinic.project.user.dto.NewVisitStatistics">
+        SELECT time.days          AS datetime,
+               IFNULL(tmd.num, 0) AS num
+        FROM (
+                 SELECT @date := DATE_ADD(@date, INTERVAL + 1 DAY) days
+                 FROM (
+                          SELECT @date := DATE_ADD(CURDATE() - INTERVAL 1 MONTH, INTERVAL - 1 DAY)
+                          FROM mysql.help_topic
+                          LIMIT 30
+                      ) AS x) AS time
+                 LEFT JOIN (
+            SELECT DATE_FORMAT(tu.create_time, '%Y-%m-%d') AS datetime,
+                   COUNT(1)                                AS num
+            FROM `user` AS tu
+            GROUP BY datetime
+        ) AS tmd ON tmd.datetime = time.days
+    </select>
 </mapper>

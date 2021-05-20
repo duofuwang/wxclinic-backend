@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.project.finance.entity.Finance;
 
+import java.util.List;
+
 /**
  * @author doverwong
  * @date 2021/5/17 15:35
@@ -50,4 +52,11 @@ public interface FinanceMapper extends BaseMapper<Finance> {
      * @return {@link IPage<Finance>}
      */
     IPage<Finance> selectPageByYear(Page<Finance> page, String startDate, String endDate);
+
+    /**
+     * 选择最近的一个月的财务清单
+     *
+     * @return {@link List<Finance>}
+     */
+    List<Finance> selectRecentMonthFinanceList();
 }

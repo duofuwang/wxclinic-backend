@@ -28,15 +28,16 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Override
     public List<Message> getRecentMsg(String userId, String friendId, int num) {
-        return messageMapper.selectList(
-                Wrappers.<Message>lambdaQuery()
-                        .eq(Message::getFromId, userId)
-                        .eq(Message::getToId, friendId)
-                        .or()
-                        .eq(Message::getFromId, friendId)
-                        .eq(Message::getToId, userId)
-                        .orderByAsc(Message::getCreateTime)
-                        .last(ObjectUtil.isNotNull(num), "LIMIT " + num)
-        );
+        return messageMapper.getRecentMsg(userId, friendId, num);
+//        return messageMapper.selectList(
+//                Wrappers.<Message>lambdaQuery()
+//                        .eq(Message::getFromId, userId)
+//                        .eq(Message::getToId, friendId)
+//                        .or()
+//                        .eq(Message::getFromId, friendId)
+//                        .eq(Message::getToId, userId)
+//                        .orderByAsc(Message::getCreateTime)
+//                        .last(ObjectUtil.isNotNull(num), "LIMIT " + num)
+//        );
     }
 }

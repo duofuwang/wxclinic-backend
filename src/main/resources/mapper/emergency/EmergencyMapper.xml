@@ -14,6 +14,7 @@
         , te.remark
         , te.create_time
         , te.status
+        , te.user_id
         FROM `emergency` AS te
         LEFT JOIN `user` AS tu ON tu.id = te.user_id
         WHERE tu.deleted = 0
@@ -33,6 +34,24 @@
             AND DATE_FORMAT(te.create_time, '%Y-%m-%d') BETWEEN DATE_FORMAT(#{startDate}, '%Y-%m-%d') and
             DATE_FORMAT(#{endDate}, '%Y-%m-%d')
         </if>
-        ORDER BY te.status, te.create_time
+        ORDER BY te.status DESC, te.create_time DESC
+    </select>
+    <select id="selectEmergencyStatistics"
+            resultType="com.dopoiv.clinic.project.emergency.dto.EmergencyStatistics">
+        SELECT time.days          AS datetime,
+               IFNULL(tmd.num, 0) AS num
+        FROM (
+                 SELECT @date := DATE_ADD(@date, INTERVAL + 1 DAY) days
+                 FROM (
+                          SELECT @date := DATE_ADD(CURDATE() - INTERVAL 1 MONTH, INTERVAL - 1 DAY)
+                          FROM mysql.help_topic
+                          LIMIT 30
+                      ) AS x) AS time
+                 LEFT JOIN (
+            SELECT DATE_FORMAT(te.create_time, '%Y-%m-%d') AS datetime,
+                   COUNT(1)                                AS num
+            FROM emergency AS te
+            GROUP BY datetime
+        ) AS tmd ON tmd.datetime = time.days
     </select>
 </mapper>

@@ -7,6 +7,7 @@
             tor.id,
             tu.nickname,
             tu.real_name,
+            tor.application_id,
             tor.fee,
             tor.paid,
             tor.create_time,

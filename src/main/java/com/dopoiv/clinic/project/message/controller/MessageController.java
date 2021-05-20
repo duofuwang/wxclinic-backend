@@ -9,6 +9,7 @@ import com.dopoiv.clinic.common.utils.SecurityUtil;
 import com.dopoiv.clinic.common.utils.UploadUtil;
 import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.project.message.dto.ContactDTO;
+import com.dopoiv.clinic.project.message.dto.MessageStatistics;
 import com.dopoiv.clinic.project.message.entity.Message;
 import com.dopoiv.clinic.project.message.mapper.MessageMapper;
 import com.dopoiv.clinic.project.message.service.impl.MessageServiceImpl;
@@ -131,7 +132,7 @@ public class MessageController extends BaseController {
             @ApiImplicitParam(name = "num", paramType = "int", value = "数量"),
             @ApiImplicitParam(name = "friendId", paramType = "String", value = "联系人 id", required = true),
     })
-    @RequestMapping(method = RequestMethod.POST, value = "/getRecentMsg")
+    @GetMapping("/getRecentMsg")
     public R getRecentMsg(String friendId, int num) {
         User user = SecurityUtil.getUserInfo();
         List<Message> messageList = messageService.getRecentMsg(user.getId(), friendId, num);
@@ -149,12 +150,10 @@ public class MessageController extends BaseController {
     }
 
     @ApiOperation(value = "获取最近会话列表和最后一条聊天记录")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", paramType = "String", value = "用户id", required = true)
-    })
-    @RequestMapping(method = RequestMethod.POST, value = "/getContactList")
-    public R getContactList(String userId) {
-        List<ContactDTO> contactList = messageMapper.getContactList(userId);
+    @GetMapping("/getContactList")
+    public R getContactList() {
+        User user = SecurityUtil.getUserInfo();
+        List<ContactDTO> contactList = messageMapper.getContactList(user.getId());
         return R.data(contactList);
     }
 
@@ -174,5 +173,11 @@ public class MessageController extends BaseController {
             return R.error("保存失败");
         }
         return R.data("http://localhost:8686/clinic/static/" + filename);
+    }
+
+    @ApiOperation(value = "获取消息统计数据")
+    @GetMapping("/getMessageStatistics")
+    public R<List<MessageStatistics>> getMessageStatistics() {
+        return R.data(messageMapper.selectMessageStatistics());
     }
 }

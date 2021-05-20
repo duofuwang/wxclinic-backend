@@ -3,6 +3,7 @@ package com.dopoiv.clinic.project.finance.controller;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.common.web.page.PageDomain;
+import com.dopoiv.clinic.project.finance.mapper.FinanceMapper;
 import com.dopoiv.clinic.project.finance.service.IFinanceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -23,6 +24,9 @@ public class FinanceController extends BaseController {
     @Autowired
     private IFinanceService financeService;
 
+    @Autowired
+    private FinanceMapper financeMapper;
+
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", paramType = "query", value = "当前页码", required = true),
             @ApiImplicitParam(name = "pageSize", paramType = "query", value = "每页显示记录数", required = true),
@@ -35,5 +39,11 @@ public class FinanceController extends BaseController {
     public R page(String startDate, String endDate, String sortBy) {
         PageDomain pageDomain = startMybatisPlusPage();
         return R.data(financeService.getPageForQuery(pageDomain, startDate, endDate, sortBy));
+    }
+
+    @ApiOperation(value = "最近一个月的财务信息")
+    @GetMapping("/getRecentMonthFinance")
+    public R getRecentMonthFinance() {
+        return R.data(financeMapper.selectRecentMonthFinanceList());
     }
 }

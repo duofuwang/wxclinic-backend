@@ -6,6 +6,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.dopoiv.clinic.common.web.domain.R;
+import com.dopoiv.clinic.project.admin.entity.Admin;
+import com.dopoiv.clinic.project.admin.mapper.AdminMapper;
+import com.dopoiv.clinic.project.emergency.entity.Emergency;
 import com.dopoiv.clinic.project.message.controller.MessageController;
 import com.dopoiv.clinic.project.message.entity.Message;
 import com.dopoiv.clinic.service.DiscardService;
@@ -51,6 +54,9 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
 
     @Autowired
     MessageController messageController;
+
+    @Autowired
+    private AdminMapper adminMapper;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame msg) {
@@ -157,27 +163,31 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
         }
     }
 
-//    @Override
-//    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//        super.channelInactive(ctx);
-//        logger.info("链接断开：{}", ctx.channel().remoteAddress());
-//    }
-//
-//    @Override
-//    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//        super.channelActive(ctx);
-//        logger.info("链接创建：{}", ctx.channel().remoteAddress());
-//    }
-
     /**
      * 当客户端连接服务端之后（打开连接）
      * 获取客户端的 channel，并且放到ChannelGroup中去进行管理
      */
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) {
-        logger.debug("add..." + ctx.channel().remoteAddress());
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
         users.add(ctx.channel());
+        logger.info("链接创建：{}", ctx.channel().remoteAddress());
     }
+
+    /**
+     * 连接断开后移除channel
+     */
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        users.remove(ctx.channel());
+        logger.info("链接断开：{}", ctx.channel().remoteAddress());
+    }
+
+//    @Override
+//    public void handlerAdded(ChannelHandlerContext ctx) {
+//        logger.debug("add..." + ctx.channel().remoteAddress());
+//    }
 
     /**
      * 发生异常之后关闭连接（关闭 channel），并且从 ChannelGroup 中移除
@@ -199,5 +209,20 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
         msgObject.put("createTime", createTime);
         data.put("message", msgObject);
         return data;
+    }
+
+    public void broadcastToDoctors(Emergency emergency) {
+        List<Admin> adminList = adminMapper.selectAll();
+        adminList.forEach(doctor -> {
+            JSONObject data = new JSONObject();
+            data.put("newEmergency", emergency);
+            Channel receiverChannel = UserChannelRel.get(doctor.getUserId());
+            if (receiverChannel != null) {
+                Channel findChannel = users.find(receiverChannel.id());
+                if (findChannel != null) {
+                    receiverChannel.writeAndFlush(new TextWebSocketFrame(data.toJSONString()));
+                }
+            }
+        });
     }
 }

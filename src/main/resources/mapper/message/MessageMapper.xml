@@ -4,6 +4,40 @@
 
     <select id="getContactList" resultType="com.dopoiv.clinic.project.message.dto.ContactDTO"
             parameterType="java.lang.String">
+        SELECT friend_id,
+               tu.nickname,
+               tu.real_name,
+               tu.avatar_url,
+               COUNT(sign = 0
+                   OR NULL) AS unread_num,
+               uni_table.content,
+               type,
+               uni_table.create_time
+        FROM (
+                 SELECT tm.id
+                      , to_id AS friend_id
+                      , content
+                      , 1     AS sign
+                      , create_time
+                      , type
+                 FROM message tm
+                 WHERE tm.from_id = #{userId}
+                   AND tm.to_id != #{userId}
+                 UNION
+                 SELECT tm.id
+                      , from_id AS friend_id
+                      , content
+                      , sign
+                      , create_time
+                      , type
+                 FROM message tm
+                 WHERE tm.from_id != #{userId}
+                   AND tm.to_id = #{userId}
+                 ORDER BY create_time DESC
+             ) uni_table
+                 INNER JOIN `user` tu ON uni_table.friend_id = tu.id
+        GROUP BY uni_table.friend_id
+        UNION
         SELECT ta.user_id               AS friend_id
              , tu.nickname              AS nickname
              , tu.real_name             AS real_name
@@ -12,7 +46,7 @@
              , tc.content
              , tc.type
              , tc.create_time
-        FROM admin AS ta
+        FROM admin ta
                  LEFT JOIN `user` tu ON ta.user_id = tu.id
                  LEFT JOIN (
             SELECT COUNT(sign = 0
@@ -30,7 +64,7 @@
                           , 1     AS sign
                           , create_time
                           , type
-                     FROM message AS tm
+                     FROM message tm
                      WHERE tm.from_id = #{userId}
                        AND tm.to_id != #{userId}
                      UNION
@@ -40,29 +74,78 @@
                           , sign
                           , create_time
                           , type
-                     FROM message AS tm
+                     FROM message tm
                      WHERE tm.from_id != #{userId}
                        AND tm.to_id = #{userId}
                      ORDER BY create_time DESC
-                 ) AS uni_table
-                     INNER JOIN `user` AS tu ON uni_table.friend_id = tu.id
+                 ) uni_table
+                     INNER JOIN (
+                SELECT tu.id, tu.avatar_url, tu.nickname, tu.real_name
+                FROM admin AS tad
+                         LEFT JOIN `user` AS tu ON tu.id = tad.user_id
+            ) AS tau ON uni_table.friend_id = tau.id
             GROUP BY uni_table.friend_id
-        ) AS tc ON tc.friend_id = ta.user_id
+        ) tc
+                           ON tc.friend_id = ta.user_id
         WHERE ta.user_id != #{userId}
-        ORDER BY tc.create_time DESC
+
     </select>
     <select id="getUnreadMessage" resultType="com.dopoiv.clinic.project.message.entity.Message"
             parameterType="java.lang.String">
-        SELECT
-            tm.id,
-            tm.from_id,
-            tm.to_id,
-            tm.type,
-            tm.content,
-            tm.create_time,
-            tm.sign
+        SELECT tm.id,
+               tm.from_id,
+               tm.to_id,
+               tm.type,
+               tm.content,
+               tm.create_time,
+               tm.sign
         from message AS tm
         WHERE tm.to_id = #{userId}
           AND tm.sign = 0
+    </select>
+    <select id="getRecentMsg" resultType="com.dopoiv.clinic.project.message.entity.Message">
+        SELECT id,
+               from_id,
+               to_id,
+               type,
+               content,
+               create_time,
+               sign,
+               mine,
+               name
+        FROM (
+                 SELECT tm.id,
+                        tm.from_id,
+                        tm.to_id,
+                        tm.type,
+                        tm.content,
+                        tm.create_time,
+                        tm.sign,
+                        IF(from_id = #{userId}, 1, 0)                                      AS mine,
+                        IF(tm.from_id = #{userId}, '我', IFNULL(tu.real_name, tu.nickname)) AS name
+                 FROM message AS tm
+                          LEFT JOIN `user` AS tu ON tu.id = tm.from_id
+                 WHERE (from_id = #{userId} AND to_id = #{friendId} OR
+                        from_id = #{friendId} AND to_id = #{userId})
+                 ORDER BY create_time DESC
+                 LIMIT #{num}) AS t
+        ORDER BY t.create_time
+    </select>
+    <select id="selectMessageStatistics" resultType="com.dopoiv.clinic.project.message.dto.MessageStatistics">
+        SELECT time.days          AS datetime,
+               IFNULL(tmd.num, 0) AS num
+        FROM (
+                 SELECT @date := DATE_ADD(@date, INTERVAL + 1 DAY) days
+                 FROM (
+                          SELECT @date := DATE_ADD(CURDATE() - INTERVAL 1 MONTH, INTERVAL - 1 DAY)
+                          FROM mysql.help_topic
+                          LIMIT 30
+                      ) AS x) AS time
+                 LEFT JOIN (
+            SELECT DATE_FORMAT(tm.create_time, '%Y-%m-%d') AS datetime,
+                   COUNT(1)                                AS num
+            FROM message AS tm
+            GROUP BY datetime
+        ) AS tmd ON tmd.datetime = time.days
     </select>
 </mapper>

@@ -99,7 +99,7 @@ public class ArticleController extends BaseController {
         Article article = articleService.getById(articleId);
         if (StrUtil.isNotEmpty(article.getUserId())) {
             User user = userMapper.selectById(article.getUserId());
-            article.setAuthor(user.getNickname());
+            article.setAuthor(user.getRealName() == null ? user.getNickname() : user.getRealName());
         }
         return R.data(article);
     }

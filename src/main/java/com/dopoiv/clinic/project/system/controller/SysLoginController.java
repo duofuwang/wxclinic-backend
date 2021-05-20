@@ -47,6 +47,9 @@ public class SysLoginController extends BaseController {
         User user = loginService.login(loginBody.getPhoneNumber(), loginBody.getPassword());
 
         if (ObjectUtil.isNotNull(user)) {
+            if (user.getStatus() == 0) {
+                return R.error("抱歉，账号已被禁用TvT");
+            }
             if (redisCache.hasKey(jwtUtil.getTokenKey(user.getToken()))) {
                 return R.data(user);
             }

@@ -1,5 +1,6 @@
 package com.dopoiv.clinic.project.user.service.impl;
 
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -11,6 +12,9 @@ import com.dopoiv.clinic.project.user.mapper.UserMapper;
 import com.dopoiv.clinic.project.user.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  * <p>
@@ -27,7 +31,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private UserMapper userMapper;
 
     @Override
-    public IPage<User> pageForQuery(User user, PageDomain pageDomain) {
+    public IPage<User> getPageForQuery(User user, PageDomain pageDomain) {
         return userMapper.selectPage(
                 new Page<>(pageDomain.getPageNum(), pageDomain.getPageSize()),
                 Wrappers.<User>lambdaQuery()
@@ -36,5 +40,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                         .eq(ObjectUtil.isNotEmpty(user.getPhoneNumber()), User::getPhoneNumber, user.getPhoneNumber())
                         .eq(ObjectUtil.isNotEmpty(user.getStatus()), User::getStatus, user.getStatus())
         );
+    }
+
+    @Override
+    public int getNewVisit() {
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime offset = LocalDateTimeUtil.offset(now, -1, ChronoUnit.MONTHS);
+
+        int count = userMapper.selectCount(
+                Wrappers.<User>lambdaQuery()
+                        .between(User::getCreateTime, offset, now)
+        );
+
+        return count;
     }
 }

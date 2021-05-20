@@ -4,7 +4,7 @@
 
     <select id="selectPageForQuery" resultType="com.dopoiv.clinic.project.article.entity.Article">
         SELECT ta.id,
-               tu.nickname AS author,
+               IFNULL(tu.real_name, tu.nickname) AS author,
                ta.user_id,
                ta.title,
                ta.summary,

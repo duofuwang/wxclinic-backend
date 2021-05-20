@@ -1,5 +1,6 @@
 package com.dopoiv.clinic.project.message.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.dopoiv.clinic.common.tools.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -44,5 +45,10 @@ public class Message extends BaseEntity {
     @ApiModelProperty(value = "签收状态，1：已读，0：未读")
     private Integer sign;
 
+    @TableField(exist = false)
+    private Integer mine;
+
+    @TableField(exist = false)
+    private String name;
 
 }

@@ -2,6 +2,7 @@ package com.dopoiv.clinic.project.message.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dopoiv.clinic.project.message.dto.ContactDTO;
+import com.dopoiv.clinic.project.message.dto.MessageStatistics;
 import com.dopoiv.clinic.project.message.entity.Message;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -22,10 +23,6 @@ public interface MessageMapper extends BaseMapper<Message> {
      * @param num      要获取的数量
      * @return List 消息列表
      */
-    @Select("SELECT * FROM message\n" +
-            "WHERE (from_id = #{userId} AND to_id = #{friendId})\n" +
-            "OR (from_id = #{friendId} AND to_id = #{userId})\n" +
-            "ORDER BY create_time")
     List<Message> getRecentMsg(@Param("userId") String userId, @Param("friendId") String friendId, @Param("num") int num);
 
     /**
@@ -43,5 +40,12 @@ public interface MessageMapper extends BaseMapper<Message> {
      * @return List 会话列表
      */
     List<ContactDTO> getContactList(@Param("userId") String userId);
+
+    /**
+     * 一月内消息发送统计情况
+     *
+     * @return {@link List<MessageStatistics>}
+     */
+    List<MessageStatistics> selectMessageStatistics();
 
 }

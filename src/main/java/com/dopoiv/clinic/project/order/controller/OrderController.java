@@ -1,5 +1,6 @@
 package com.dopoiv.clinic.project.order.controller;
 
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -23,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -124,6 +127,30 @@ public class OrderController extends BaseController {
                         .setUserId(user.getId());
             }
         }
+        LocalDateTime expirationTime = order.getExpirationTime();
+        Duration duration = LocalDateTimeUtil.between(LocalDateTime.now(), expirationTime);
+        order.setExpired(duration.toMinutes() < 0);
         return R.data(order);
+    }
+
+    @ApiOperation(value = "获取用户订单信息")
+    @GetMapping("/getUserOrderList")
+    public R getUserOrderList() {
+        PageDomain pageDomain = startMybatisPlusPage();
+        return R.data(orderService.getUserOrderPage(pageDomain));
+    }
+
+    @ApiOperation(value = "取消订单")
+    @PostMapping("/cancel")
+    public R cancelOrder(String ids) {
+        List<String> deleteIds = new ArrayList<>(Arrays.asList(ids.split(",")));
+        deleteIds.forEach(id -> {
+            orderService.update(
+                    Wrappers.<Order>lambdaUpdate()
+                            .eq(Order::getId, id)
+                            .set(Order::getPaid, 2)
+            );
+        });
+        return R.success();
     }
 }

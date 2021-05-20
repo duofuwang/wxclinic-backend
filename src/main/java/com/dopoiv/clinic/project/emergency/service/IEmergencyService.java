@@ -33,4 +33,12 @@ public interface IEmergencyService extends IService<Emergency> {
      * @return 呼救信息
      */
     UserEmergencyVo getUserEmergency(String emergencyId);
+
+    /**
+     * 获取用户紧急呼救列表
+     *
+     * @param pageDomain 页面域
+     * @return {@link IPage<Emergency>}
+     */
+    IPage<UserEmergencyVo> getEmergencyList(PageDomain pageDomain);
 }

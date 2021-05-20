@@ -3,9 +3,11 @@ package com.dopoiv.clinic.common.web.page;
 import com.dopoiv.clinic.common.utils.StringUtil;
 
 /**
+ * 页面域
  * 分页数据
  *
  * @author ywgy
+ * @date 2021/05/19
  */
 public class PageDomain {
     /**

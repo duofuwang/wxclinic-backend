@@ -23,4 +23,12 @@ public interface IOrderService extends IService<Order> {
      * @return 分页数据
      */
     IPage<Order> getPageForQuery(PageDomain pageDomain, Order params, String startDate, String endDate);
+
+    /**
+     * 分页获取用户订单
+     *
+     * @param pageDomain 页面域
+     * @return {@link IPage<Order>}
+     */
+    IPage<Order> getUserOrderPage(PageDomain pageDomain);
 }

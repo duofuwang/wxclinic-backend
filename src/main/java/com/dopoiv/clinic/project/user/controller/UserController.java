@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.utils.JwtUtil;
 import com.dopoiv.clinic.common.utils.SecurityUtil;
@@ -70,7 +69,7 @@ public class UserController extends BaseController {
     @GetMapping("/page")
     public R page(User user) {
         PageDomain pageDomain = startMybatisPlusPage();
-        return R.data(userService.pageForQuery(user, pageDomain));
+        return R.data(userService.getPageForQuery(user, pageDomain));
     }
 
     @ApiImplicitParams({
@@ -202,16 +201,9 @@ public class UserController extends BaseController {
         return jwtUtil.createToken(loginUser);
     }
 
-
-    /**
-     * 判断用户是否存在
-     *
-     * @param userId 用户 id
-     * @return boolean 存在：true 不存在：false
-     */
-    public boolean exists(String userId) {
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("id", userId);
-        return userMapper.selectCount(userQueryWrapper) != 0;
+    @ApiOperation(value = "获取新用户统计数据")
+    @GetMapping("/getNewVisitStatistics")
+    public R getNewVisitStatistics() {
+        return R.data(userMapper.selectNewVisitStatistics());
     }
 }

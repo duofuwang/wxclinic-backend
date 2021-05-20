@@ -11,6 +11,7 @@ import com.dopoiv.clinic.project.emergency.entity.Emergency;
 import com.dopoiv.clinic.project.emergency.mapper.EmergencyMapper;
 import com.dopoiv.clinic.project.emergency.service.IEmergencyService;
 import com.dopoiv.clinic.project.emergency.vo.UserEmergencyVo;
+import com.dopoiv.clinic.websocket.handler.WebsocketMessageHandler;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +36,9 @@ public class EmergencyController extends BaseController {
 
     @Autowired
     private IEmergencyService emergencyService;
+
+    @Autowired
+    private WebsocketMessageHandler websocketMessageHandler;
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -73,6 +77,7 @@ public class EmergencyController extends BaseController {
             );
             entity.setStatus(1);
             emergencyMapper.insert(entity);
+            websocketMessageHandler.broadcastToDoctors(entity);
         } else {
             emergencyMapper.updateById(entity);
         }
@@ -126,7 +131,7 @@ public class EmergencyController extends BaseController {
         return R.status(emergencyService.update(
                 Wrappers.<Emergency>lambdaUpdate()
                         .eq(Emergency::getId, emergencyId)
-                        .set(Emergency::getStatus, 2)
+                        .set(Emergency::getStatus, 0)
         ));
     }
 
@@ -137,5 +142,18 @@ public class EmergencyController extends BaseController {
     @GetMapping("/{emergencyId}")
     public R getById(@PathVariable String emergencyId) {
         return R.data(emergencyService.getUserEmergency(emergencyId));
+    }
+
+    @ApiOperation(value = "呼救统计")
+    @GetMapping("/getEmergencyStatistics")
+    public R getEmergencyStatistics() {
+        return R.data(emergencyMapper.selectEmergencyStatistics());
+    }
+
+    @ApiOperation(value = "获取用户呼救记录")
+    @GetMapping("/getEmergencyList")
+    public R getEmergencyList() {
+        PageDomain pageDomain = startMybatisPlusPage();
+        return R.data(emergencyService.getEmergencyList(pageDomain));
     }
 }

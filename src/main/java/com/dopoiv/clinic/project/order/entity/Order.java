@@ -64,4 +64,8 @@ public class Order extends BaseEntity {
     @TableField(exist = false)
     private String realName;
 
+    @ApiModelProperty(value = "是否过期")
+    @TableField(exist = false)
+    private Boolean expired;
+
 }

@@ -61,4 +61,27 @@
         GROUP BY datetime
         ORDER BY datetime DESC
     </select>
+    <select id="selectRecentMonthFinanceList" resultType="com.dopoiv.clinic.project.finance.entity.Finance">
+        SELECT time.days                     AS datetime,
+               IFNULL(tf.total_fee, 0)       AS total_fee,
+               IFNULL(tf.actual_received, 0) AS actual_received
+        FROM (
+                 SELECT @date := DATE_ADD(@date, INTERVAL + 1 DAY) days,
+                        CURDATE() AS                               dd
+                 FROM (
+                          SELECT @date := DATE_ADD(CURDATE() - INTERVAL 1 MONTH, INTERVAL - 1 DAY)
+                          FROM mysql.help_topic
+                          LIMIT 30
+                      ) AS x) AS time
+                 LEFT JOIN (SELECT DATE_FORMAT(tor.create_time, '%Y-%m-%d') AS datetime,
+                                   SUM(tor.fee)                             AS total_fee,
+                                   SUM(IF(tor.paid = 1, tor.fee, 0))        AS actual_received
+                            FROM tb_order AS tor
+                                     LEFT JOIN application AS tap ON tap.id = tor.application_id
+                                     LEFT JOIN `user` AS tu ON tu.id = tap.user_id
+                            WHERE tor.deleted = 0
+                              AND tor.create_time BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+                            GROUP BY datetime
+                            ORDER BY datetime DESC) AS tf ON tf.datetime = time.days
+    </select>
 </mapper>

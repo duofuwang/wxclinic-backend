@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dopoiv.clinic.common.utils.SecurityUtil;
 import com.dopoiv.clinic.common.web.page.PageDomain;
 import com.dopoiv.clinic.project.emergency.entity.Emergency;
 import com.dopoiv.clinic.project.emergency.mapper.EmergencyMapper;
@@ -13,6 +14,8 @@ import com.dopoiv.clinic.project.user.entity.User;
 import com.dopoiv.clinic.project.user.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -49,5 +52,20 @@ public class EmergencyServiceImpl extends ServiceImpl<EmergencyMapper, Emergency
         BeanUtil.copyProperties(user, userEmergency);
         BeanUtil.copyProperties(emergency, userEmergency);
         return userEmergency;
+    }
+
+    @Override
+    public IPage<UserEmergencyVo> getEmergencyList(PageDomain pageDomain) {
+
+        User user = SecurityUtil.getUserInfo();
+        UserEmergencyVo emergency = new UserEmergencyVo();
+        emergency.setUserId(user.getId());
+
+        return emergencyMapper.selectPageForQuery(
+                new Page<>(pageDomain.getPageNum(), pageDomain.getPageSize()),
+                emergency,
+                null,
+                null
+        );
     }
 }
