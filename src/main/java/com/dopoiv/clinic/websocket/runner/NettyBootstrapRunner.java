@@ -42,9 +42,9 @@ import io.netty.handler.stream.ChunkedWriteHandler;
  * @author wangduofu
  */
 @Component
-public class NettyBootsrapRunner implements ApplicationRunner, ApplicationListener<ContextClosedEvent>, ApplicationContextAware {
+public class NettyBootstrapRunner implements ApplicationRunner, ApplicationListener<ContextClosedEvent>, ApplicationContextAware {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NettyBootsrapRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyBootstrapRunner.class);
 
     @Value("${netty.websocket.port}")
     private int port;
