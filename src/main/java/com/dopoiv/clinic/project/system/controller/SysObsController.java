@@ -32,6 +32,6 @@ public class SysObsController extends BaseController {
         if(StrUtil.isEmpty(filename)) {
             return R.error("上传失败");
         }
-        return R.data("http://localhost:8686/clinic/static/" + filename);
+        return R.data("https://dopoiv.space/static/" + filename);
     }
 }
