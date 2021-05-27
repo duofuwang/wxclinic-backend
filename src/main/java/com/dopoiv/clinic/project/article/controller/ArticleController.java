@@ -43,8 +43,6 @@ public class ArticleController extends BaseController {
     @Autowired
     private UserMapper userMapper;
 
-    Logger logger = LoggerFactory.getLogger(getClass());
-
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", paramType = "query", value = "当前页码", required = true),
             @ApiImplicitParam(name = "pageSize", paramType = "query", value = "每页显示记录数", required = true)

@@ -43,16 +43,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public int getNewVisit() {
+    public int getNewVisitNum() {
 
+        // 差距一个月
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime offset = LocalDateTimeUtil.offset(now, -1, ChronoUnit.MONTHS);
 
-        int count = userMapper.selectCount(
+        return userMapper.selectCount(
                 Wrappers.<User>lambdaQuery()
                         .between(User::getCreateTime, offset, now)
         );
-
-        return count;
     }
 }

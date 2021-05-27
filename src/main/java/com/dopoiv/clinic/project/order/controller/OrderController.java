@@ -107,7 +107,9 @@ public class OrderController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "/payment")
     public R payment(String id) {
         return R.status(orderService.update(
-                Wrappers.<Order>lambdaUpdate().eq(Order::getId, id).set(Order::getPaid, 1)
+                Wrappers.<Order>lambdaUpdate()
+                        .eq(Order::getId, id)
+                        .set(Order::getPaid, 1)
         ));
     }
 
@@ -144,13 +146,11 @@ public class OrderController extends BaseController {
     @PostMapping("/cancel")
     public R cancelOrder(String ids) {
         List<String> deleteIds = new ArrayList<>(Arrays.asList(ids.split(",")));
-        deleteIds.forEach(id -> {
-            orderService.update(
-                    Wrappers.<Order>lambdaUpdate()
-                            .eq(Order::getId, id)
-                            .set(Order::getPaid, 2)
-            );
-        });
+        deleteIds.forEach(id -> orderService.update(
+                Wrappers.<Order>lambdaUpdate()
+                        .eq(Order::getId, id)
+                        .set(Order::getPaid, 2)
+        ));
         return R.success();
     }
 }

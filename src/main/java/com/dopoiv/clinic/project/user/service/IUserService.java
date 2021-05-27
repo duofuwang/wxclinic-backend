@@ -25,10 +25,10 @@ public interface IUserService extends IService<User> {
     IPage<User> getPageForQuery(User user, PageDomain pageDomain);
 
     /**
-     * 获得新的访问
+     * 一个月内新用户数量
      *
      * @return int
      */
-    int getNewVisit();
+    int getNewVisitNum();
 
 }

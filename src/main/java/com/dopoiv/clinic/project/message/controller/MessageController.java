@@ -2,7 +2,7 @@ package com.dopoiv.clinic.project.message.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dopoiv.clinic.common.tools.BaseController;
 import com.dopoiv.clinic.common.utils.SecurityUtil;
@@ -117,14 +117,15 @@ public class MessageController extends BaseController {
             @ApiImplicitParam(name = "msgIdList", paramType = "List<String>", value = "Message id 集合", required = true)
     })
     public R batchUpdateMsgSigned(List<String> msgIdList) {
-
-        for (String mid : msgIdList) {
-            UpdateWrapper<Message> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.eq("id", mid).set("sign", MsgSignFlagEnum.SIGNED.type);
-            messageMapper.update(null, updateWrapper);
+        boolean success = messageService.update(
+                Wrappers.<Message>lambdaUpdate()
+                        .in(Message::getId, msgIdList)
+                        .set(Message::getSign, MsgSignFlagEnum.SIGNED.getType())
+        );
+        if (success) {
+            return R.success("消息批量签收成功：" + msgIdList.size() + "条");
         }
-
-        return R.success("消息批量签收成功：" + msgIdList.size() + "条");
+        return R.error("签收失败");
     }
 
     @ApiOperation(value = "获取用户最近的 num 条信息")

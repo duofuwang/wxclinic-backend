@@ -105,14 +105,12 @@ public class ApplicationController extends BaseController {
     })
     @RequestMapping(method = RequestMethod.POST, value = "/revoke")
     public R revoke(String ids) {
-        logger.debug("ids: {}", ids);
-        UpdateWrapper<Application> applicationUpdateWrapper = new UpdateWrapper<>();
-        for (String id : ids.split(",")) {
-            applicationUpdateWrapper
-                    .eq("id", id)
-                    .set("status", -1);
-            applicationMapper.update(null, applicationUpdateWrapper);
-        }
+        List<String> idList = Arrays.asList(ids.split(","));
+        applicationService.update(
+                Wrappers.<Application>lambdaUpdate()
+                        .in(Application::getId, idList)
+                        .set(Application::getStatus, -1)
+        );
         return R.success();
     }
 
