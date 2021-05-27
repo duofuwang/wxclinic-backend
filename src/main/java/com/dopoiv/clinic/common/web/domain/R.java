@@ -1,8 +1,5 @@
 package com.dopoiv.clinic.common.web.domain;
 
-import cn.hutool.core.lang.Dict;
-import com.dopoiv.clinic.common.web.page.PageDomain;
-import com.dopoiv.clinic.common.web.TableDataInfo;
 import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
@@ -60,17 +57,6 @@ public class R<T> implements Serializable {
     public static <T> R<T> data(T data) {
         return data(data, ResultCode.SUCCESS.message);
     }
-
-    /**
-     * 使用这种默认返回 Dict格式
-     * @param tableDataInfo 数据源
-     * @param pageDomain  分页信息
-     * @return
-     */
-    public static R<Dict> data(TableDataInfo tableDataInfo, PageDomain pageDomain) {
-        return data(Dict.create().set("total", tableDataInfo.getTotal()).set("pageNo", pageDomain.getPageNum()).set("pageSize", pageDomain.getPageSize()).set("records", tableDataInfo.getRows()), ResultCode.SUCCESS.message);
-    }
-
 
     public static <T> R<T> data(T data, String msg) {
         return data(ResultCode.SUCCESS.code, data, msg);

@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -140,12 +141,7 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
                 String msgIdsStr = dataContent.getExtend();
                 String[] msgIds = msgIdsStr.split(",");
 
-                List<String> msgIdList = new ArrayList<>();
-                for (String mId : msgIds) {
-                    if (StringUtils.isNotBlank(mId)) {
-                        msgIdList.add(mId);
-                    }
-                }
+                List<String> msgIdList = Arrays.asList(msgIds);
 
                 logger.debug("签收列表: {}", msgIdList);
 
@@ -183,11 +179,6 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
         users.remove(ctx.channel());
         logger.info("链接断开：{}", ctx.channel().remoteAddress());
     }
-
-//    @Override
-//    public void handlerAdded(ChannelHandlerContext ctx) {
-//        logger.debug("add..." + ctx.channel().remoteAddress());
-//    }
 
     /**
      * 发生异常之后关闭连接（关闭 channel），并且从 ChannelGroup 中移除

@@ -53,10 +53,8 @@ public class EmergencyController extends BaseController {
         return R.data(emergencyService.pageForQuery(pageDomain, params, startDate, endDate));
     }
 
-    @ApiImplicitParams({
-    })
     @ApiOperation(value = "获取全部Emergency信息")
-    @RequestMapping(method = RequestMethod.POST, value = "/getAllItems")
+    @PostMapping("/getAllItems")
     public R getAllItems() {
         Emergency params = new Emergency();
         QueryWrapper<Emergency> wrapper = new QueryWrapper<>(params);
@@ -70,6 +68,7 @@ public class EmergencyController extends BaseController {
     public R save(@RequestBody Emergency entity) {
 
         if (entity.getId() == null) {
+            // 新呼救
             emergencyService.update(
                     Wrappers.<Emergency>lambdaUpdate()
                             .eq(Emergency::getUserId, entity.getUserId())
@@ -77,6 +76,7 @@ public class EmergencyController extends BaseController {
             );
             entity.setStatus(1);
             emergencyMapper.insert(entity);
+            // 将该消息通知医生
             websocketMessageHandler.broadcastToDoctors(entity);
         } else {
             emergencyMapper.updateById(entity);
@@ -88,9 +88,9 @@ public class EmergencyController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ids", paramType = "query", value = "传入的id串，用，隔开", required = true)
     })
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete")
+    @DeleteMapping("/delete")
     public R delete(String ids) {
-        List<String> deleteIds = new ArrayList<String>(Arrays.asList(ids.split(",")));
+        List<String> deleteIds = new ArrayList<>(Arrays.asList(ids.split(",")));
         emergencyMapper.deleteBatchIds(deleteIds);
         return R.success();
     }
@@ -99,7 +99,7 @@ public class EmergencyController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", paramType = "String", value = "用户id", required = true)
     })
-    @RequestMapping(method = RequestMethod.POST, value = "/getCurrentCall")
+    @PostMapping("/getCurrentCall")
     public R<Emergency> getCurrentCall(String userId) {
         return R.data(emergencyService.getOne(
                 Wrappers.<Emergency>lambdaQuery()
@@ -112,7 +112,7 @@ public class EmergencyController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", paramType = "String", value = "用户id", required = true)
     })
-    @RequestMapping(method = RequestMethod.POST, value = "/stopEmergencyCall")
+    @PostMapping("/stopEmergencyCall")
     public R stopEmergencyCall(String userId) {
         return R.status(emergencyService.update(
                 Wrappers.<Emergency>lambdaUpdate()
