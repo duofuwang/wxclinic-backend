@@ -4,7 +4,6 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.project.admin.entity.Admin;
 import com.dopoiv.clinic.project.admin.mapper.AdminMapper;
@@ -32,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -62,6 +60,7 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame msg) {
         if (msg instanceof TextWebSocketFrame) {
+            //文本数据帧类型
             TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
 
             // 获取客户端传来的消息
@@ -151,7 +150,10 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
 
                     logger.debug("消息签收结果: {}", result);
                 }
-
+            } else if (action.equals(MsgActionEnum.KEEPALIVE.getType())) {
+                logger.debug("PING:{}", currentChannel.id());
+                // 客户端保持心跳 防止断开连接
+                currentChannel.writeAndFlush(new TextWebSocketFrame("PONG"));
             }
         } else {
             // 不接受文本以外的数据帧类型
@@ -211,6 +213,7 @@ public class WebsocketMessageHandler extends SimpleChannelInboundHandler<WebSock
             if (receiverChannel != null) {
                 Channel findChannel = users.find(receiverChannel.id());
                 if (findChannel != null) {
+                    logger.debug("医生{}在线，推送通知", doctor.getRealName());
                     receiverChannel.writeAndFlush(new TextWebSocketFrame(data.toJSONString()));
                 }
             }
