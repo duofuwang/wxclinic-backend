@@ -9,6 +9,7 @@ import com.dopoiv.clinic.common.utils.SecurityUtil;
 import com.dopoiv.clinic.common.utils.WechatUtil;
 import com.dopoiv.clinic.common.web.domain.R;
 import com.dopoiv.clinic.project.admin.dto.LoginBody;
+import com.dopoiv.clinic.project.system.entity.WechatLoginForm;
 import com.dopoiv.clinic.project.system.service.SysLoginService;
 import com.dopoiv.clinic.project.user.entity.User;
 import com.dopoiv.clinic.project.user.mapper.UserMapper;
@@ -82,26 +83,31 @@ public class SysLoginController extends BaseController {
 
     @ApiOperation(value = "微信登录")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "code", paramType = "String", value = "code", required = true),
-            @ApiImplicitParam(name = "rawData", paramType = "String", value = "rawData", required = true)
+            @ApiImplicitParam(name = "code", paramType = "query", value = "code", required = true),
+            @ApiImplicitParam(name = "rawData", paramType = "query", value = "rawData", required = true),
+            @ApiImplicitParam(name = "encryptedData", paramType = "query", value = "encryptedData", required = true),
+            @ApiImplicitParam(name = "iv", paramType = "query", value = "iv", required = true),
+            @ApiImplicitParam(name = "signature", paramType = "query", value = "signature", required = true)
     })
     @PostMapping("/wxlogin")
-    public R wxLogin(String code, String rawData, String encryptedData, String iv, String signature) {
+    public R wxLogin(WechatLoginForm form) {
 
         // 使用 appId + appSecret + code 登录凭证校验接口，获取session_key和openid
-        JSONObject sessionKeyOpenId = WechatUtil.getSessionKeyOrOpenId(code);
+        JSONObject sessionKeyOpenId = WechatUtil.getSessionKeyAndOpenId(form.getCode());
         // 获取返回的参数 session_key 和 openid
         String openid = sessionKeyOpenId.getString("openid");
         String sessionKey = sessionKeyOpenId.getString("session_key");
 
         // 校验签名是否一致
-        String signature1 = DigestUtils.sha1Hex(rawData + sessionKey);
-        if (!signature1.equals(signature)) {
+        String signature1 = DigestUtils.sha1Hex(form.getRawData() + sessionKey);
+        if (!signature1.equals(form.getSignature())) {
             return R.error("登录校验失败");
         }
 
         // 解密用户手机号信息
-        JSONObject phoneNumberData = JSON.parseObject(WechatUtil.decrypt(encryptedData, sessionKey, iv));
+        JSONObject phoneNumberData = JSON.parseObject(
+                WechatUtil.decrypt(form.getEncryptedData(), sessionKey, form.getIv())
+        );
         // 校验 appid
         String appid1 = phoneNumberData.getJSONObject("watermark").getString("appid");
         if (!appid1.equals(appid)) {
@@ -114,7 +120,7 @@ public class SysLoginController extends BaseController {
         if (user == null) {
             logger.debug("新用户");
             // 保存用户公开信息
-            JSONObject rawDataJson = JSON.parseObject(rawData);
+            JSONObject rawDataJson = JSON.parseObject(form.getRawData());
             // 信息保存为user对象
             user = JSONObject.parseObject(rawDataJson.toJSONString(), User.class);
             user.setId(openid);
@@ -145,7 +151,7 @@ public class SysLoginController extends BaseController {
      * 获得登录令牌
      *
      * @param user 用户
-     * @return {@link String}
+     * @return {@link String} token
      */
     public String getLoginToken(User user) {
         UserDetails userDetails = new LoginUser(user);

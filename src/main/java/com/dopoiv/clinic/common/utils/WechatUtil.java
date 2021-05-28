@@ -18,13 +18,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 微信工具类
+ *
  * @author doverwong
  * @date 2021/2/24 20:53
  */
 @Component
 public class WechatUtil {
 
+    /**
+     * http客户端
+     */
     private static MyHttpClient httpClient;
+
     private static String appid;
     private static String secret;
 
@@ -44,18 +50,24 @@ public class WechatUtil {
         secret = secretTemp;
     }
 
-    public static JSONObject getSessionKeyOrOpenId(String code) {
+    /**
+     * 获得sessionKey和openid
+     *
+     * @param code 登录code
+     * @return {@link JSONObject}
+     */
+    public static JSONObject getSessionKeyAndOpenId(String code) {
         String requestUrl = "https://api.weixin.qq.com/sns/jscode2session";
         Map<String, String> requestUrlParam = new HashMap<>();
-        //小程序appId
+        // 小程序appId
         requestUrlParam.put("appid", appid);
-        //小程序secret
+        // 小程序secret
         requestUrlParam.put("secret", secret);
-        //小程序端返回的code
+        // 小程序端返回的code
         requestUrlParam.put("js_code", code);
-        //默认参数
+        // 默认参数
         requestUrlParam.put("grant_type", "authorization_code");
-        //发送post请求读取调用微信接口获取openid用户唯一标识
+        // 发送post请求读取调用微信接口获取openid用户唯一标识
         return JSON.parseObject(httpClient.doGet(requestUrl, requestUrlParam));
     }
 
@@ -68,11 +80,11 @@ public class WechatUtil {
      * @return 解密后的信息
      */
     public static String decrypt(String data, String key, String iv) {
-        //被加密的数据
+        // 被加密的数据
         byte[] dataByte = Base64.decode(data);
-        //加密秘钥
+        // 加密秘钥
         byte[] keyByte = Base64.decode(key);
-        //偏移量
+        // 偏移量
         byte[] ivByte = Base64.decode(iv);
         try {
             AlgorithmParameterSpec ivSpec = new IvParameterSpec(ivByte);
