@@ -20,12 +20,12 @@ public class CodeGenerator {
     /**
      * 模块名
      */
-    private static final String MODULE_NAME = "admin";
+    private static final String MODULE_NAME = "medical_record";
 
     /**
      * 表名
      */
-    private static final String TABLE_NAME = "admin";
+    private static final String TABLE_NAME = "medical_record";
 
     /**
      * 生成的位置
@@ -51,7 +51,7 @@ public class CodeGenerator {
 
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://dopoiv.space:3306/clinic?useUnicode=true&useSSL=false&characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://localhost:3306/clinic?useUnicode=true&useSSL=false&characterEncoding=utf8");
         // dsc.setSchemaName("public");
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
         dsc.setUsername("root");
